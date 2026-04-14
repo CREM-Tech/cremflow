@@ -23,6 +23,7 @@
     --green: #10B981;
     --red: #E24B4A;
     --amber: #F59E0B;
+    --yellow: #EAB308;
     --shell-h: 42px;
     --font: 'DM Sans', sans-serif;
     --mono: 'DM Mono', monospace;
@@ -67,10 +68,23 @@
     height: 100%;
     border-right: 1px solid var(--border-subtle);
     cursor: pointer;
-    transition: background var(--transition);
+    transition: all var(--transition);
     flex-shrink: 0;
+    position: relative;
   }
-  .logo:hover { background: rgba(255,255,255,0.03); }
+  .logo:hover { background: rgba(255,255,255,0.05); }
+  .logo:hover .logo-name { color: var(--text-bright); }
+  .logo::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--cyan));
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .logo:hover::after { opacity: 0.6; }
+  .logo.home-active::after { opacity: 1; }
 
   .logo-mark {
     width: 24px;
@@ -120,10 +134,13 @@
   }
   .app-tab:hover { background: rgba(255,255,255,0.05); color: var(--text-bright); }
   .app-tab.active {
-    background: rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.11);
     color: var(--text-bright);
-    border-color: var(--border-mid);
+    border-color: rgba(255,255,255,0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
   }
+  .app-tab[data-app="prefab"].active { border-color: rgba(6,182,212,0.4); box-shadow: 0 0 0 1px rgba(6,182,212,0.15); }
+  .app-tab[data-app="field"].active  { border-color: rgba(234,179,8,0.4);  box-shadow: 0 0 0 1px rgba(234,179,8,0.15); }
   .app-tab.soon { opacity: 0.4; cursor: default; }
   .app-tab.soon:hover { background: transparent; color: var(--text-mid); }
 
@@ -225,6 +242,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
+    z-index: 2;
   }
   .app-pane.visible {
     opacity: 1;
@@ -249,6 +267,7 @@
     justify-content: center;
     gap: 48px;
     background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 70%);
+    z-index: 5;
   }
 
   .launcher-hero {
@@ -285,28 +304,44 @@
   }
 
   /* App cards grid */
-  .app-cards {
-    display: flex;
+  .app-cards-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
     gap: 14px;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 700px;
+    max-width: 780px;
+    width: 100%;
     padding: 0 24px;
+  }
+
+  .app-cards-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .app-card {
     background: rgba(255,255,255,0.03);
     border: 1px solid var(--border-subtle);
     border-radius: 12px;
-    padding: 20px 24px;
+    padding: 18px 20px;
     cursor: pointer;
     transition: all 0.2s ease;
-    width: 200px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     position: relative;
     overflow: hidden;
+  }
+
+  .app-card-hero {
+    height: 100%;
+    padding: 24px;
+    background: rgba(59,130,246,0.04);
+    border-color: rgba(59,130,246,0.15);
+  }
+  .app-card-hero:hover {
+    background: rgba(59,130,246,0.07) !important;
+    border-color: rgba(59,130,246,0.25) !important;
   }
   .app-card::before {
     content: '';
@@ -381,8 +416,9 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s;
+    z-index: 10;
   }
-  .load-pane.visible { opacity: 1; }
+  .load-pane.visible { opacity: 1; pointer-events: none; }
   .load-spinner {
     width: 28px;
     height: 28px;
@@ -469,13 +505,13 @@
     </div>
 
     <div class="app-tabs" id="appTabs">
-      <div class="app-tab" data-app="prefab" onclick="switchApp('prefab')">
+      <div class="app-tab" data-app="prefab" onclick="switchApp('prefab')" id="tab-prefab">
         <div class="tab-dot" style="background:var(--cyan);"></div>
         PrefabFlow
       </div>
-      <div class="app-tab" data-app="crew" onclick="switchApp('crew')">
-        <div class="tab-dot" style="background:var(--blue);"></div>
-        CremFlow
+      <div class="app-tab" data-app="field" onclick="switchApp('field')" id="tab-field">
+        <div class="tab-dot" style="background:var(--yellow);"></div>
+        FieldFlow
       </div>
       <div class="app-tab soon" data-app="finance">
         <div class="tab-dot" style="background:var(--purple);"></div>
@@ -539,63 +575,86 @@
         <div class="launcher-sub">Your unified operations platform</div>
       </div>
 
-      <div class="app-cards">
+      <div class="app-cards-grid">
 
-        <div class="app-card" data-app="prefab" onclick="switchApp('prefab')">
-          <div class="card-icon" style="background:rgba(6,182,212,0.12);">
-            <svg viewBox="0 0 18 18" fill="none">
-              <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5"/>
-              <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
-              <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
-              <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".3"/>
+        <!-- CremFlow — large hero card on left -->
+        <div class="app-card app-card-hero" data-app="home" onclick="goHome()">
+          <div class="card-icon" style="background:linear-gradient(135deg,rgba(59,130,246,0.18),rgba(6,182,212,0.18));border:1px solid rgba(59,130,246,0.2);">
+            <svg viewBox="0 0 13 13" fill="none" width="22" height="22">
+              <path d="M2 6.5C2 4.015 4.015 2 6.5 2s4.5 2.015 4.5 4.5" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M6.5 11C8.985 11 11 8.985 11 6.5" stroke="rgba(96,165,250,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="6.5" cy="6.5" r="1.6" fill="#60A5FA"/>
             </svg>
           </div>
           <div>
-            <div class="card-name">PrefabFlow</div>
-            <div class="card-desc">Prefab project management & production tracking</div>
+            <div class="card-name" style="font-size:18px;margin-bottom:4px;">CremFlow</div>
+            <div class="card-desc">Your unified operations platform — home base for all CREM apps</div>
           </div>
-          <div class="card-status status-live">
-            <div class="status-dot"></div>
-            Live
-          </div>
-        </div>
-
-        <div class="app-card" data-app="crew" onclick="switchApp('crew')">
-          <div class="card-icon" style="background:rgba(59,130,246,0.12);">
-            <svg viewBox="0 0 18 18" fill="none">
-              <circle cx="7" cy="6" r="3" stroke="#3B82F6" stroke-width="1.5"/>
-              <path d="M1.5 16c0-3.038 2.462-5.5 5.5-5.5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round"/>
-              <circle cx="13" cy="9.5" r="2.5" stroke="#3B82F6" stroke-width="1.5" opacity=".7"/>
-              <path d="M10.5 16c0-1.933 1.12-3.5 2.5-3.5s2.5 1.567 2.5 3.5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
-            </svg>
-          </div>
-          <div>
-            <div class="card-name">CremFlow</div>
-            <div class="card-desc">Manpower scheduling, crew management & labor tracking</div>
-          </div>
-          <div class="card-status status-building">
-            <div class="status-dot"></div>
-            In development
+          <div style="margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.3);display:flex;align-items:center;gap:6px;">
+            <div style="width:5px;height:5px;border-radius:50%;background:#10B981;"></div>
+            2 apps active · 1 coming soon
           </div>
         </div>
 
-        <div class="app-card soon" data-app="finance">
-          <div class="card-icon" style="background:rgba(139,92,246,0.12);">
-            <svg viewBox="0 0 18 18" fill="none">
-              <path d="M2 13l4-5 3.5 3 3.5-6 3 4" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
-              <path d="M9 5V3M9 15v-2M5.5 9H3.5M14.5 9h-2" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" opacity=".4"/>
-            </svg>
-          </div>
-          <div>
-            <div class="card-name">FinanceFlow</div>
-            <div class="card-desc">Job costing, labor budgets & financial reporting</div>
-          </div>
-          <div class="card-status status-soon">
-            <div class="status-dot"></div>
-            Coming soon
-          </div>
-        </div>
+        <!-- Right column: sub-apps -->
+        <div class="app-cards-right">
 
+          <div class="app-card" data-app="prefab" onclick="switchApp('prefab')">
+            <div class="card-icon" style="background:rgba(6,182,212,0.12);">
+              <svg viewBox="0 0 18 18" fill="none">
+                <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5"/>
+                <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
+                <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
+                <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".3"/>
+              </svg>
+            </div>
+            <div>
+              <div class="card-name">PrefabFlow</div>
+              <div class="card-desc">Prefab project management & production tracking</div>
+            </div>
+            <div class="card-status status-live">
+              <div class="status-dot"></div>
+              Live
+            </div>
+          </div>
+
+          <div class="app-card" data-app="field" onclick="switchApp('field')">
+            <div class="card-icon" style="background:rgba(234,179,8,0.12);">
+              <svg viewBox="0 0 18 18" fill="none">
+                <circle cx="7" cy="6" r="3" stroke="#EAB308" stroke-width="1.5"/>
+                <path d="M1.5 16c0-3.038 2.462-5.5 5.5-5.5" stroke="#EAB308" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="13" cy="9.5" r="2.5" stroke="#EAB308" stroke-width="1.5" opacity=".7"/>
+                <path d="M10.5 16c0-1.933 1.12-3.5 2.5-3.5s2.5 1.567 2.5 3.5" stroke="#EAB308" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="card-name">FieldFlow</div>
+              <div class="card-desc">Manpower scheduling, field crew management & labor tracking</div>
+            </div>
+            <div class="card-status status-building">
+              <div class="status-dot"></div>
+              In development
+            </div>
+          </div>
+
+          <div class="app-card soon" data-app="finance">
+            <div class="card-icon" style="background:rgba(139,92,246,0.12);">
+              <svg viewBox="0 0 18 18" fill="none">
+                <path d="M2 13l4-5 3.5 3 3.5-6 3 4" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+                <path d="M9 5V3M9 15v-2M5.5 9H3.5M14.5 9h-2" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" opacity=".4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="card-name">FinanceFlow</div>
+              <div class="card-desc">Job costing, labor budgets & financial reporting</div>
+            </div>
+            <div class="card-status status-soon">
+              <div class="status-dot"></div>
+              Coming soon
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
 
@@ -610,8 +669,8 @@
       <iframe id="iframe-prefab" title="PrefabFlow"></iframe>
     </div>
 
-    <div class="app-pane" id="pane-crew" data-url="">
-      <iframe id="iframe-crew" title="CremFlow"></iframe>
+    <div class="app-pane" id="pane-field" data-url="">
+      <iframe id="iframe-field" title="FieldFlow"></iframe>
     </div>
 
   </div>
@@ -658,12 +717,12 @@
 let currentApp = null;
 const apps = {
   prefab: { name: 'PrefabFlow', color: '#06B6D4', url: 'https://prefabflow-production.up.railway.app/' },
-  crew:   { name: 'CremFlow',   color: '#3B82F6', url: '' /* add your CremFlow URL when ready */ },
+  field:  { name: 'FieldFlow',  color: '#EAB308', url: '' /* add your FieldFlow URL when ready */ },
 };
 
 const notifications = [
-  { app: 'CremFlow',   text: '37 school conflicts need resolution', time: '2m ago', color: '#EF4444', read: false },
-  { app: 'CremFlow',   text: '3 pending approval requests',         time: '1h ago', color: '#F59E0B', read: false },
+  { app: 'FieldFlow',  text: '37 school conflicts need resolution', time: '2m ago', color: '#EF4444', read: false },
+  { app: 'FieldFlow',  text: '3 pending approval requests',         time: '1h ago', color: '#F59E0B', read: false },
   { app: 'PrefabFlow', text: 'Bay 3 panel set ready for QC',        time: '3h ago', color: '#10B981', read: true  },
 ];
 
@@ -680,10 +739,11 @@ setInterval(tickClock, 10000);
 function switchApp(appKey) {
   if (appKey === currentApp) return;
 
-  // Update tabs
-  document.querySelectorAll('.app-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.app === appKey);
-  });
+  // Remove home-active from logo, update tabs
+  document.querySelector('.logo').classList.remove('home-active');
+  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+  const activeTab = document.querySelector(`.app-tab[data-app="${appKey}"]`);
+  if (activeTab) activeTab.classList.add('active');
 
   // Hide launcher
   document.getElementById('homeLauncher').style.display = 'none';
@@ -869,6 +929,7 @@ function goHome() {
   document.getElementById('contextBar').classList.add('hidden');
   document.getElementById('sbApp').style.display = 'none';
   document.getElementById('loadPane').classList.remove('visible');
+  document.querySelector('.logo').classList.add('home-active');
 }
 
 // ── Panels ──
@@ -919,6 +980,7 @@ document.addEventListener('click', (e) => {
 
 // ── Init ──
 renderNotifs();
+document.querySelector('.logo').classList.add('home-active');
 </script>
 </body>
 </html>
