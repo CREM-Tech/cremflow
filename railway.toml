@@ -1,2 +1,0 @@
-[deploy]
-startCommand = "nginx -c /app/nginx.conf -g 'daemon off;'"
