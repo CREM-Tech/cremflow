@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CremFlow</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0F172A;
+    --navy-hover: #1E293B;
+    --border-subtle: rgba(255,255,255,0.07);
+    --border-mid: rgba(255,255,255,0.1);
+    --text-dim: rgba(255,255,255,0.38);
+    --text-mid: rgba(255,255,255,0.55);
+    --text-bright: rgba(255,255,255,0.92);
+    --blue: #3B82F6;
+    --cyan: #06B6D4;
+    --purple: #8B5CF6;
+    --green: #10B981;
+    --red: #E24B4A;
+    --amber: #F59E0B;
+    --shell-h: 42px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 6px;
+    --transition: 0.15s ease;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: var(--font);
+    background: #060D1A;
+    color: var(--text-bright);
+    overflow: hidden;
+  }
+
+  /* ── SHELL ── */
+  .shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    height: var(--shell-h);
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+  }
+
+  /* Logo */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 18px;
+    height: 100%;
+    border-right: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background var(--transition);
+    flex-shrink: 0;
+  }
+  .logo:hover { background: rgba(255,255,255,0.03); }
+
+  .logo-mark {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(59,130,246,0.35);
+  }
+  .logo-mark svg { width: 13px; height: 13px; }
+
+  .logo-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-bright);
+    letter-spacing: -0.02em;
+  }
+
+  /* App switcher */
+  .app-tabs {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 6px;
+    gap: 2px;
+    border-right: 1px solid var(--border-subtle);
+  }
+
+  .app-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 11px;
+    height: 28px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+    position: relative;
+    border: 1px solid transparent;
+  }
+  .app-tab:hover { background: rgba(255,255,255,0.05); color: var(--text-bright); }
+  .app-tab.active {
+    background: rgba(255,255,255,0.09);
+    color: var(--text-bright);
+    border-color: var(--border-mid);
+  }
+  .app-tab.soon { opacity: 0.4; cursor: default; }
+  .app-tab.soon:hover { background: transparent; color: var(--text-mid); }
+
+  .tab-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .tab-badge {
+    font-size: 9px;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-left: 1px;
+    font-family: var(--mono);
+  }
+
+  /* Top-right controls */
+  .top-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 12px;
+  }
+
+  .tr-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: var(--radius);
+    font-size: 11.5px;
+    font-family: var(--font);
+    color: var(--text-mid);
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    transition: all var(--transition);
+  }
+  .tr-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-bright); }
+  .tr-btn svg { width: 13px; height: 13px; opacity: 0.6; }
+
+  .notif-wrap { position: relative; }
+  .notif-pip {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    border: 1.5px solid var(--navy);
+  }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 6px 3px 3px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    cursor: pointer;
+    margin-left: 6px;
+    transition: all var(--transition);
+  }
+  .user-pill:hover { background: rgba(255,255,255,0.04); border-color: var(--border-mid); }
+
+  .user-av {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #1E3A8A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: #93C5FD;
+    flex-shrink: 0;
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+  }
+  .user-name { font-size: 11.5px; font-weight: 500; color: var(--text-mid); }
+
+  /* ── VIEWPORT ── */
+  .viewport {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: #060D1A;
+  }
+
+  /* iframe pane */
+  .app-pane {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .app-pane.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .app-pane iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: transparent;
+  }
+
+  /* ── HOME / LAUNCHER ── */
+  .launcher {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 70%);
+  }
+
+  .launcher-hero {
+    text-align: center;
+  }
+  .launcher-wordmark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .launcher-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(59,130,246,0.3), 0 0 60px rgba(59,130,246,0.1);
+  }
+  .launcher-mark svg { width: 24px; height: 24px; }
+  .launcher-title {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: var(--text-bright);
+  }
+  .launcher-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+
+  /* App cards grid */
+  .app-cards {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 700px;
+    padding: 0 24px;
+  }
+
+  .app-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .app-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .app-card:hover {
+    background: rgba(255,255,255,0.055);
+    border-color: var(--border-mid);
+    transform: translateY(-1px);
+  }
+  .app-card:hover::before { opacity: 1; }
+  .app-card.soon { opacity: 0.45; cursor: default; }
+  .app-card.soon:hover { transform: none; background: rgba(255,255,255,0.03); border-color: var(--border-subtle); }
+
+  .app-card[data-app="prefab"]::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+  .app-card[data-app="crew"]::before { background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+  .app-card[data-app="finance"]::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-icon svg { width: 18px; height: 18px; }
+
+  .card-name {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-bright);
+  }
+  .card-desc {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .card-status {
+    font-size: 10px;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .card-status .status-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .status-live { background: rgba(16,185,129,0.12); color: #6EE7B7; }
+  .status-live .status-dot { background: var(--green); }
+  .status-building { background: rgba(245,158,11,0.12); color: #FCD34D; }
+  .status-building .status-dot { background: var(--amber); }
+  .status-soon { background: rgba(139,92,246,0.12); color: #C4B5FD; }
+  .status-soon .status-dot { background: var(--purple); }
+
+  /* ── LOADING STATE ── */
+  .load-pane {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .load-pane.visible { opacity: 1; }
+  .load-spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid rgba(255,255,255,0.08);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .load-label { font-size: 12px; color: var(--text-dim); }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    height: 26px;
+    background: var(--navy);
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 18px;
+    flex-shrink: 0;
+  }
+  .sb-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .sb-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .sb-item.ok .sb-dot { background: var(--green); }
+  .sb-item.warn .sb-dot { background: var(--amber); }
+
+  /* ── BREADCRUMB / CONTEXT BAR ── */
+  .context-bar {
+    height: 32px;
+    background: rgba(255,255,255,0.018);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 6px;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: all 0.2s;
+  }
+  .context-bar.hidden { display: none; }
+  .cb-sep { opacity: 0.3; }
+  .cb-app { color: var(--text-mid); font-weight: 500; }
+  .cb-back {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 4px;
+    transition: all var(--transition);
+    color: var(--text-dim);
+    border: 1px solid transparent;
+    font-size: 11px;
+  }
+  .cb-back:hover { background: rgba(255,255,255,0.04); border-color: var(--border-subtle); color: var(--text-mid); }
+  .cb-back svg { width: 11px; height: 11px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ══ TOP BAR ══ -->
+  <div class="top-bar">
+    <div class="logo" onclick="goHome()">
+      <div class="logo-mark">
+        <svg viewBox="0 0 13 13" fill="none">
+          <path d="M2 6.5C2 4.015 4.015 2 6.5 2s4.5 2.015 4.5 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M6.5 11C8.985 11 11 8.985 11 6.5" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="6.5" cy="6.5" r="1.6" fill="white"/>
+        </svg>
+      </div>
+      <span class="logo-name">CremFlow</span>
+    </div>
+
+    <div class="app-tabs" id="appTabs">
+      <div class="app-tab" data-app="prefab" onclick="switchApp('prefab')">
+        <div class="tab-dot" style="background:var(--cyan);"></div>
+        PrefabFlow
+      </div>
+      <div class="app-tab" data-app="crew" onclick="switchApp('crew')">
+        <div class="tab-dot" style="background:var(--blue);"></div>
+        CremFlow
+      </div>
+      <div class="app-tab soon" data-app="finance">
+        <div class="tab-dot" style="background:var(--purple);"></div>
+        FinanceFlow
+        <span class="tab-badge">soon</span>
+      </div>
+    </div>
+
+    <div class="top-right">
+      <button class="tr-btn" onclick="togglePanel('settings')">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v1.3M8 13.2v1.3M1.5 8h1.3M13.2 8h1.3M3.4 3.4l.9.9M11.7 11.7l.9.9M12.6 3.4l-.9.9M4.3 11.7l-.9.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Settings
+      </button>
+      <button class="tr-btn" onclick="togglePanel('help')">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M6 6c0-1.1.9-2 2-2s2 .9 2 2c0 1-.6 1.5-1.2 1.9C8.2 8.3 8 8.7 8 9.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".75" fill="currentColor"/></svg>
+        Help
+      </button>
+      <div class="notif-wrap">
+        <button class="tr-btn" onclick="togglePanel('notifications')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5A4.5 4.5 0 003.5 6c0 2.5-.5 4-1.5 5h12c-1-1-1.5-2.5-1.5-5A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 11v.5a1.5 1.5 0 003 0V11" stroke="currentColor" stroke-width="1.4"/></svg>
+          Notifications
+        </button>
+        <div class="notif-pip" id="notifPip"></div>
+      </div>
+
+      <div class="user-pill" onclick="togglePanel('account')">
+        <div class="user-av" id="userAv">ZS</div>
+        <span class="user-name" id="userName">Zech S.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CONTEXT BAR (shows when inside an app) ══ -->
+  <div class="context-bar hidden" id="contextBar">
+    <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M3 8l4-4M3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>CremFlow</span>
+    <span class="cb-sep">/</span>
+    <span class="cb-app" id="ctxAppName">—</span>
+    <span class="cb-back" onclick="goHome()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to home
+    </span>
+  </div>
+
+  <!-- ══ VIEWPORT ══ -->
+  <div class="viewport" id="viewport">
+
+    <!-- Home launcher -->
+    <div class="launcher" id="homeLauncher">
+      <div class="launcher-hero">
+        <div class="launcher-wordmark">
+          <div class="launcher-mark">
+            <svg viewBox="0 0 13 13" fill="none">
+              <path d="M2 6.5C2 4.015 4.015 2 6.5 2s4.5 2.015 4.5 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M6.5 11C8.985 11 11 8.985 11 6.5" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="6.5" cy="6.5" r="1.6" fill="white"/>
+            </svg>
+          </div>
+          <span class="launcher-title">CremFlow</span>
+        </div>
+        <div class="launcher-sub">Your unified operations platform</div>
+      </div>
+
+      <div class="app-cards">
+
+        <div class="app-card" data-app="prefab" onclick="switchApp('prefab')">
+          <div class="card-icon" style="background:rgba(6,182,212,0.12);">
+            <svg viewBox="0 0 18 18" fill="none">
+              <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5"/>
+              <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
+              <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
+              <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-name">PrefabFlow</div>
+            <div class="card-desc">Prefab project management & production tracking</div>
+          </div>
+          <div class="card-status status-live">
+            <div class="status-dot"></div>
+            Live
+          </div>
+        </div>
+
+        <div class="app-card" data-app="crew" onclick="switchApp('crew')">
+          <div class="card-icon" style="background:rgba(59,130,246,0.12);">
+            <svg viewBox="0 0 18 18" fill="none">
+              <circle cx="7" cy="6" r="3" stroke="#3B82F6" stroke-width="1.5"/>
+              <path d="M1.5 16c0-3.038 2.462-5.5 5.5-5.5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="13" cy="9.5" r="2.5" stroke="#3B82F6" stroke-width="1.5" opacity=".7"/>
+              <path d="M10.5 16c0-1.933 1.12-3.5 2.5-3.5s2.5 1.567 2.5 3.5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-name">CremFlow</div>
+            <div class="card-desc">Manpower scheduling, crew management & labor tracking</div>
+          </div>
+          <div class="card-status status-building">
+            <div class="status-dot"></div>
+            In development
+          </div>
+        </div>
+
+        <div class="app-card soon" data-app="finance">
+          <div class="card-icon" style="background:rgba(139,92,246,0.12);">
+            <svg viewBox="0 0 18 18" fill="none">
+              <path d="M2 13l4-5 3.5 3 3.5-6 3 4" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+              <path d="M9 5V3M9 15v-2M5.5 9H3.5M14.5 9h-2" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" opacity=".4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-name">FinanceFlow</div>
+            <div class="card-desc">Job costing, labor budgets & financial reporting</div>
+          </div>
+          <div class="card-status status-soon">
+            <div class="status-dot"></div>
+            Coming soon
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div class="load-pane" id="loadPane">
+      <div class="load-spinner"></div>
+      <div class="load-label" id="loadLabel">Loading…</div>
+    </div>
+
+    <!-- App panes (iframes mount here) -->
+    <div class="app-pane" id="pane-prefab" data-url="">
+      <iframe id="iframe-prefab" title="PrefabFlow"></iframe>
+    </div>
+
+    <div class="app-pane" id="pane-crew" data-url="">
+      <iframe id="iframe-crew" title="CremFlow"></iframe>
+    </div>
+
+  </div>
+
+  <!-- ══ STATUS BAR ══ -->
+  <div class="status-bar">
+    <div class="sb-item ok">
+      <div class="sb-dot"></div>
+      Supabase connected
+    </div>
+    <div class="sb-item ok">
+      <div class="sb-dot"></div>
+      Railway · healthy
+    </div>
+    <div class="sb-item" id="sbApp" style="margin-left:auto; display:none;">
+      <div class="sb-dot" id="sbAppDot" style="background:var(--blue);"></div>
+      <span id="sbAppName">—</span>
+    </div>
+    <div class="sb-item" style="margin-left:auto;">
+      <span id="sbClock" style="font-family:var(--mono);"></span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ NOTIFICATION PANEL ══ -->
+<div id="notifPanel" style="
+  position:fixed; top:var(--shell-h); right:0; width:320px;
+  background:#111827; border:1px solid var(--border-subtle);
+  border-radius:0 0 0 12px; z-index:200;
+  box-shadow: -8px 8px 32px rgba(0,0,0,0.5);
+  transform:translateY(-8px); opacity:0; pointer-events:none;
+  transition:all 0.18s ease; padding:16px;
+">
+  <div style="font-size:12px;font-weight:600;color:var(--text-bright);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+    Notifications
+    <span style="font-size:10px;font-weight:400;color:var(--text-dim);cursor:pointer;" onclick="clearNotifs()">Mark all read</span>
+  </div>
+  <div id="notifList"></div>
+</div>
+
+<script>
+// ── State ──
+let currentApp = null;
+const apps = {
+  prefab: { name: 'PrefabFlow', color: '#06B6D4', url: 'https://prefabflow-production.up.railway.app/' },
+  crew:   { name: 'CremFlow',   color: '#3B82F6', url: '' /* add your CremFlow URL when ready */ },
+};
+
+const notifications = [
+  { app: 'CremFlow',   text: '37 school conflicts need resolution', time: '2m ago', color: '#EF4444', read: false },
+  { app: 'CremFlow',   text: '3 pending approval requests',         time: '1h ago', color: '#F59E0B', read: false },
+  { app: 'PrefabFlow', text: 'Bay 3 panel set ready for QC',        time: '3h ago', color: '#10B981', read: true  },
+];
+
+// ── Clock ──
+function tickClock() {
+  const now = new Date();
+  document.getElementById('sbClock').textContent =
+    now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+tickClock();
+setInterval(tickClock, 10000);
+
+// ── App switching ──
+function switchApp(appKey) {
+  if (appKey === currentApp) return;
+
+  // Update tabs
+  document.querySelectorAll('.app-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.app === appKey);
+  });
+
+  // Hide launcher
+  document.getElementById('homeLauncher').style.display = 'none';
+
+  // Show context bar
+  const app = apps[appKey];
+  document.getElementById('contextBar').classList.remove('hidden');
+  document.getElementById('ctxAppName').textContent = app.name;
+
+  // Show loading
+  const loadPane = document.getElementById('loadPane');
+  document.getElementById('loadLabel').textContent = `Loading ${app.name}…`;
+  loadPane.classList.add('visible');
+
+  // Hide all panes
+  document.querySelectorAll('.app-pane').forEach(p => p.classList.remove('visible'));
+
+  // Load iframe if URL set, otherwise show placeholder
+  const pane = document.getElementById(`pane-${appKey}`);
+  const iframe = document.getElementById(`iframe-${appKey}`);
+
+  if (app.url) {
+    if (iframe.dataset.loaded !== app.url) {
+      iframe.src = app.url;
+      iframe.dataset.loaded = app.url;
+
+      const blockTimer = setTimeout(() => {
+        loadPane.classList.remove('visible');
+        pane.classList.add('visible');
+        showBlocked(pane, appKey, app);
+      }, 7000);
+
+      iframe.onload = () => {
+        clearTimeout(blockTimer);
+        let blocked = false;
+        try { blocked = !iframe.contentDocument || iframe.contentDocument.body === null; }
+        catch(e) { blocked = false; }
+        loadPane.classList.remove('visible');
+        if (blocked) { showBlocked(pane, appKey, app); }
+        else { pane.classList.add('visible'); }
+      };
+      iframe.onerror = () => {
+        clearTimeout(blockTimer);
+        loadPane.classList.remove('visible');
+        showBlocked(pane, appKey, app);
+      };
+    } else {
+      loadPane.classList.remove('visible');
+      pane.classList.add('visible');
+    }
+  } else {
+    setTimeout(() => {
+      loadPane.classList.remove('visible');
+      pane.classList.add('visible');
+      showPlaceholder(pane, appKey, app);
+    }, 600);
+  }
+
+  // Status bar
+  document.getElementById('sbApp').style.display = 'flex';
+  document.getElementById('sbApp').style.marginLeft = 'auto';
+  document.getElementById('sbAppDot').style.background = app.color;
+  document.getElementById('sbAppName').textContent = app.name;
+
+  currentApp = appKey;
+}
+
+function showPlaceholder(pane, appKey, app) {
+  if (pane.querySelector('.placeholder')) return;
+  const ph = document.createElement('div');
+  ph.className = 'placeholder';
+  ph.style.cssText = `
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;
+    background:radial-gradient(ellipse 50% 40% at 50% 50%, ${app.color}08 0%, transparent 70%);
+  `;
+
+  const icon = appKey === 'crew'
+    ? `<svg width="32" height="32" viewBox="0 0 18 18" fill="none">
+        <circle cx="7" cy="6" r="3" stroke="${app.color}" stroke-width="1.5"/>
+        <path d="M1.5 16c0-3.038 2.462-5.5 5.5-5.5" stroke="${app.color}" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="13" cy="9.5" r="2.5" stroke="${app.color}" stroke-width="1.5" opacity=".7"/>
+        <path d="M10.5 16c0-1.933 1.12-3.5 2.5-3.5s2.5 1.567 2.5 3.5" stroke="${app.color}" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+       </svg>`
+    : `<svg width="32" height="32" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="${app.color}" stroke-width="1.5"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="${app.color}" stroke-width="1.5" opacity=".6"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="${app.color}" stroke-width="1.5" opacity=".6"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="${app.color}" stroke-width="1.5" opacity=".3"/>
+       </svg>`;
+
+  ph.innerHTML = `
+    <div style="width:60px;height:60px;border-radius:16px;background:${app.color}14;display:flex;align-items:center;justify-content:center;border:1px solid ${app.color}22;">
+      ${icon}
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:17px;font-weight:600;letter-spacing:-0.03em;color:rgba(255,255,255,0.88);margin-bottom:6px;">${app.name}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.35);max-width:280px;line-height:1.6;">
+        Connect your deployed app URL to load it here.<br>
+        Set <code style="font-family:'DM Mono',monospace;font-size:11px;color:${app.color}99;">apps.${appKey}.url</code> in the shell config.
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button onclick="promptUrl('${appKey}')" style="
+        padding:8px 18px;border-radius:7px;font-size:12px;font-weight:500;
+        background:${app.color}18;border:1px solid ${app.color}44;color:${app.color};
+        cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;
+      " onmouseover="this.style.background='${app.color}28'" onmouseout="this.style.background='${app.color}18'">
+        Set app URL
+      </button>
+    </div>
+  `;
+  pane.appendChild(ph);
+}
+
+function showBlocked(pane, appKey, app) {
+  if (pane.querySelector('.blocked-msg')) return;
+  pane.classList.add('visible');
+  const el = document.createElement('div');
+  el.className = 'blocked-msg';
+  el.style.cssText = \`
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:18px;
+    background:radial-gradient(ellipse 50% 40% at 50% 50%, \${app.color}07 0%, transparent 70%);
+  \`;
+  el.innerHTML = \`
+    <div style="width:56px;height:56px;border-radius:16px;background:\${app.color}12;display:flex;align-items:center;justify-content:center;border:1px solid \${app.color}25;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="11" width="18" height="11" rx="2" stroke="\${app.color}" stroke-width="1.6"/>
+        <path d="M7 11V7a5 5 0 0110 0v4" stroke="\${app.color}" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div style="text-align:center;max-width:360px;">
+      <div style="font-size:16px;font-weight:600;letter-spacing:-0.03em;color:rgba(255,255,255,0.88);margin-bottom:8px;">\${app.name} needs one code change</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.38);line-height:1.8;">
+        Your app is blocking iframe embeds via <code style="font-family:'DM Mono',monospace;font-size:11px;color:\${app.color}99;">X-Frame-Options</code>.<br>
+        Add these lines to your Express server entry file and redeploy:
+      </div>
+    </div>
+    <div style="background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:14px 20px;font-family:'DM Mono',monospace;font-size:11.5px;color:rgba(255,255,255,0.6);line-height:2;text-align:left;max-width:460px;width:90%;">
+      <span style="color:#7DD3FC;">app</span>.<span style="color:#86EFAC;">use</span>(<span style="color:#FCA5A5;">(req, res, next)</span> => {<br>
+      &nbsp;&nbsp;res.<span style="color:#86EFAC;">removeHeader</span>(<span style="color:#FDE68A;">'X-Frame-Options'</span>);<br>
+      &nbsp;&nbsp;res.<span style="color:#86EFAC;">setHeader</span>(<span style="color:#FDE68A;">'Content-Security-Policy'</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#FDE68A;">"frame-ancestors 'self' https://cremflow-shell.up.railway.app"</span>);<br>
+      &nbsp;&nbsp;<span style="color:#7DD3FC;">next</span>();<br>
+      });
+    </div>
+    <div style="display:flex;gap:10px;margin-top:2px;">
+      <a href="\${app.url}" target="_blank" style="
+        padding:9px 18px;border-radius:7px;font-size:12px;font-weight:500;
+        background:\${app.color}18;border:1px solid \${app.color}44;color:\${app.color};
+        cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;
+        display:inline-flex;align-items:center;gap:6px;
+      ">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M6 2H2v12h12v-4M9 2h5v5M8 8l6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Open \${app.name} in new tab
+      </a>
+    </div>
+  \`;
+  pane.appendChild(el);
+}
+
+function promptUrl(appKey) {
+  const url = prompt(`Enter the deployed URL for ${apps[appKey].name}:`);
+  if (url && url.startsWith('http')) {
+    apps[appKey].url = url;
+    const pane = document.getElementById(`pane-${appKey}`);
+    const ph = pane.querySelector('.placeholder');
+    if (ph) ph.remove();
+    const iframe = document.getElementById(`iframe-${appKey}`);
+    iframe.src = url;
+    iframe.onload = () => pane.classList.add('visible');
+    document.getElementById('loadPane').classList.add('visible');
+  }
+}
+
+// ── Go home ──
+function goHome() {
+  currentApp = null;
+  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.app-pane').forEach(p => p.classList.remove('visible'));
+  document.getElementById('homeLauncher').style.display = 'flex';
+  document.getElementById('contextBar').classList.add('hidden');
+  document.getElementById('sbApp').style.display = 'none';
+  document.getElementById('loadPane').classList.remove('visible');
+}
+
+// ── Panels ──
+let openPanel = null;
+function togglePanel(name) {
+  if (name === 'notifications') {
+    const panel = document.getElementById('notifPanel');
+    const isOpen = panel.style.opacity === '1';
+    panel.style.opacity = isOpen ? '0' : '1';
+    panel.style.transform = isOpen ? 'translateY(-8px)' : 'translateY(0)';
+    panel.style.pointerEvents = isOpen ? 'none' : 'all';
+    if (!isOpen) renderNotifs();
+  }
+}
+
+function renderNotifs() {
+  const list = document.getElementById('notifList');
+  list.innerHTML = notifications.map((n, i) => `
+    <div style="
+      display:flex;align-items:flex-start;gap:10px;padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      opacity:${n.read ? '0.5' : '1'};
+    ">
+      <div style="width:7px;height:7px;border-radius:50%;background:${n.color};flex-shrink:0;margin-top:4px;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11.5px;color:rgba(255,255,255,0.85);line-height:1.4;">${n.text}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;">${n.app} · ${n.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearNotifs() {
+  notifications.forEach(n => n.read = true);
+  document.getElementById('notifPip').style.display = 'none';
+  renderNotifs();
+}
+
+// Close panels on outside click
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('notifPanel');
+  if (!e.target.closest('#notifPanel') && !e.target.closest('.notif-wrap')) {
+    panel.style.opacity = '0';
+    panel.style.transform = 'translateY(-8px)';
+    panel.style.pointerEvents = 'none';
+  }
+});
+
+// ── Init ──
+renderNotifs();
+</script>
+</body>
+</html>
