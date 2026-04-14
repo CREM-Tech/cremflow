@@ -58,7 +58,7 @@
   /* TOP BAR */
   .top-bar {
     height: var(--shell-h); background: var(--navy);
-    display: flex; align-items: center;
+    display: flex; align-items: center; flex-wrap: nowrap; overflow: hidden;
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0; position: relative; z-index: 100;
   }
@@ -86,7 +86,7 @@
   .logo-mark svg { width: 13px; height: 13px; }
   .logo-name { font-size: 13.5px; font-weight: 600; color: var(--text-bright); letter-spacing: -0.02em; }
 
-  .app-tabs { display: flex; align-items: center; height: 100%; padding: 0 6px; gap: 2px; border-right: 1px solid var(--border-subtle); }
+  .app-tabs { display: flex; align-items: center; height: 100%; padding: 0 6px; gap: 2px; flex-shrink: 0; }
 
   .app-tab {
     display: flex; align-items: center; gap: 6px;
@@ -127,20 +127,7 @@
   .user-name { font-size: 11.5px; font-weight: 500; color: var(--text-mid); }
 
   /* Context bar */
-  .context-bar {
-    height: 32px; background: rgba(255,255,255,0.018);
-    border-bottom: 1px solid var(--border-subtle);
-    display: flex; align-items: center; padding: 0 16px; gap: 6px;
-    flex-shrink: 0; font-size: 11px; color: var(--text-dim);
-  }
-  .context-bar.hidden { display: none; }
-  .cb-app { color: var(--text-mid); font-weight: 500; }
-  .cb-back {
-    margin-left: auto; display: flex; align-items: center; gap: 4px;
-    cursor: pointer; padding: 3px 8px; border-radius: 4px;
-    border: 1px solid transparent; font-size: 11px; transition: all var(--t);
-  }
-  .cb-back:hover { background: rgba(255,255,255,0.04); border-color: var(--border-subtle); color: var(--text-mid); }
+
 
   /* Viewport */
   .viewport { flex: 1; overflow: hidden; position: relative; background: #060D1A; }
@@ -250,13 +237,16 @@
 
     <div class="app-tabs">
       <div class="app-tab" data-app="prefab" id="tab-prefab">
-        <div class="tab-dot" style="background:var(--cyan);"></div>PrefabFlow
+        <div class="tab-dot" style="background:var(--cyan);"></div>
+        PrefabFlow
       </div>
       <div class="app-tab" data-app="field" id="tab-field">
-        <div class="tab-dot" style="background:var(--yellow);"></div>FieldFlow
+        <div class="tab-dot" style="background:var(--yellow);"></div>
+        FieldFlow
       </div>
       <div class="app-tab soon" data-app="finance">
-        <div class="tab-dot" style="background:var(--purple);"></div>FinanceFlow
+        <div class="tab-dot" style="background:var(--purple);"></div>
+        FinanceFlow
         <span class="tab-badge">soon</span>
       </div>
     </div>
@@ -276,17 +266,7 @@
     </div>
   </div>
 
-  <!-- CONTEXT BAR -->
-  <div class="context-bar hidden" id="contextBar">
-    <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M3 8l4-4M3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span>CremFlow</span>
-    <span style="opacity:0.3;">/</span>
-    <span class="cb-app" id="ctxAppName"></span>
-    <span class="cb-back" id="btnBack">
-      <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Back to home
-    </span>
-  </div>
+
 
   <!-- VIEWPORT -->
   <div class="viewport">
@@ -415,7 +395,6 @@
     document.querySelectorAll('.app-tab').forEach(function (t) { t.classList.remove('active'); });
     document.querySelectorAll('.app-pane').forEach(function (p) { p.classList.remove('visible'); });
     document.getElementById('homeLauncher').style.display = 'flex';
-    document.getElementById('contextBar').classList.add('hidden');
     document.getElementById('sbApp').style.display = 'none';
     document.getElementById('loadPane').classList.remove('visible');
     document.getElementById('logoBtn').classList.add('active');
@@ -433,8 +412,6 @@
     if (tab) tab.classList.add('active');
 
     document.getElementById('homeLauncher').style.display = 'none';
-    document.getElementById('contextBar').classList.remove('hidden');
-    document.getElementById('ctxAppName').textContent = app.name;
     document.querySelectorAll('.app-pane').forEach(function (p) { p.classList.remove('visible'); });
 
     document.getElementById('sbApp').style.display = 'flex';
@@ -464,20 +441,18 @@
 
     var timer = setTimeout(function () {
       loadPane.classList.remove('visible');
-      showBlocked(pane, appKey, app);
-    }, 7000);
+      pane.classList.add('visible');
+    }, 8000);
 
     iframe.onload = function () {
       clearTimeout(timer);
-      var blocked = false;
-      try { blocked = !iframe.contentDocument || iframe.contentDocument.body === null; } catch (e) {}
       loadPane.classList.remove('visible');
-      if (blocked) { showBlocked(pane, appKey, app); } else { pane.classList.add('visible'); }
+      pane.classList.add('visible');
     };
     iframe.onerror = function () {
       clearTimeout(timer);
       loadPane.classList.remove('visible');
-      showBlocked(pane, appKey, app);
+      pane.classList.add('visible');
     };
   }
 
@@ -487,26 +462,8 @@
     el.className = 'ph-msg';
     el.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;';
     el.innerHTML = '<div style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.8);">' + app.name + '</div>'
-      + '<div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;max-width:280px;">No URL configured yet.<br>Set the URL in the apps config in index.html.</div>';
-    pane.appendChild(el);
-  }
-
-  function showBlocked(pane, appKey, app) {
-    if (pane.querySelector('.bl-msg')) return;
-    pane.classList.add('visible');
-    var el = document.createElement('div');
-    el.className = 'bl-msg';
-    el.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;';
-    el.innerHTML = '<div style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.85);">' + app.name + ' needs one code change</div>'
-      + '<div style="font-size:12px;color:rgba(255,255,255,0.38);line-height:1.8;max-width:360px;">Add these 2 lines to your Express server and redeploy:</div>'
-      + '<pre style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:14px 20px;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.9;text-align:left;max-width:460px;width:90%;white-space:pre-wrap;">'
-      + "app.use((req, res, next) => {\n"
-      + "  res.removeHeader('X-Frame-Options');\n"
-      + "  res.setHeader('Content-Security-Policy',\n"
-      + "    \"frame-ancestors 'self' https://cremflow.up.railway.app\");\n"
-      + "  next();\n"
-      + "});</pre>"
-      + '<a href="' + app.url + '" target="_blank" style="padding:9px 18px;border-radius:7px;font-size:12px;font-weight:500;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);text-decoration:none;">Open ' + app.name + ' in new tab</a>';
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;max-width:280px;">No URL configured yet.</div>'
+      + '<a href="#" style="padding:8px 16px;border-radius:7px;font-size:12px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);text-decoration:none;">Coming soon</a>';
     pane.appendChild(el);
   }
 
@@ -537,7 +494,6 @@
     document.getElementById('card-field').addEventListener('click',  function () { switchApp('field'); });
 
     // Context bar back
-    document.getElementById('btnBack').addEventListener('click', goHome);
 
     // Dark / Light mode toggle
     var isLight = false;
