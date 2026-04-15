@@ -440,12 +440,12 @@
     <!-- App panes — sandbox restricts iframe capabilities -->
     <div class="app-pane" id="pane-prefab">
       <iframe id="iframe-prefab" title="PrefabFlow"
-        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation">
       </iframe>
     </div>
     <div class="app-pane" id="pane-field">
       <iframe id="iframe-field" title="FieldFlow"
-        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation">
       </iframe>
     </div>
 
@@ -640,15 +640,13 @@
       return;
     }
 
-    if (iframe.dataset.loaded === app.url) {
-      pane.classList.add('visible');
-      return;
-    }
-
+    // Force a completely fresh load every time — no caching
     document.getElementById('loadLabel').textContent = 'Loading ' + app.name + '...';
     loadPane.classList.add('visible');
-    iframe.src = app.url;
-    iframe.dataset.loaded = app.url;
+    iframe.src = 'about:blank';
+    setTimeout(function () {
+      iframe.src = app.url;
+    }, 50);
 
     var timer = setTimeout(function () {
       loadPane.classList.remove('visible');
