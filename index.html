@@ -479,7 +479,7 @@
 
   var apps = {
     prefab: { name: 'PrefabFlow', color: '#06B6D4', url: 'https://prefabflow-production.up.railway.app/' },
-    field:  { name: 'FieldFlow',  color: '#EAB308', url: 'https://fieldflow-production-01ab.up.railway.app/' }
+    field:  { name: 'FieldFlow',  color: '#EAB308', url: 'https://fieldflow.up.railway.app/' }
   };
 
   var currentApp   = null;
@@ -634,10 +634,11 @@
       return;
     }
 
-    // Just load it directly — simple and clean
+    // Add timestamp so browser never serves cached version
+    var freshUrl = app.url + (app.url.includes('?') ? '&' : '?') + '_t=' + Date.now();
     loadPane.classList.add('visible');
     document.getElementById('loadLabel').textContent = 'Loading ' + app.name + '...';
-    iframe.src = app.url;
+    iframe.src = freshUrl;
 
     iframe.onload = function () {
       loadPane.classList.remove('visible');
