@@ -484,7 +484,6 @@
   };
 
   var currentApp   = null;
-  var switching    = false; // prevent rapid re-clicks
 
   // ── AUTH ──
   function getSession() {
@@ -607,12 +606,8 @@
 
   // ── SWITCH APP ──
   function switchApp(appKey) {
-    if (switching) return;
     var app = apps[appKey];
-    if (!app || appKey === currentApp) return;
-
-    switching = true;
-    setTimeout(function () { switching = false; }, 500);
+    if (!app) return;
 
     currentApp = appKey;
 
@@ -640,29 +635,26 @@
       return;
     }
 
-    // Force a completely fresh load every time — no caching
-    document.getElementById('loadLabel').textContent = 'Loading ' + app.name + '...';
+    // Just load it directly — simple and clean
     loadPane.classList.add('visible');
-    iframe.src = 'about:blank';
-    setTimeout(function () {
-      iframe.src = app.url;
-    }, 50);
-
-    var timer = setTimeout(function () {
-      loadPane.classList.remove('visible');
-      pane.classList.add('visible');
-    }, 8000);
+    document.getElementById('loadLabel').textContent = 'Loading ' + app.name + '...';
+    iframe.src = app.url;
 
     iframe.onload = function () {
-      clearTimeout(timer);
       loadPane.classList.remove('visible');
       pane.classList.add('visible');
     };
+
     iframe.onerror = function () {
-      clearTimeout(timer);
       loadPane.classList.remove('visible');
       pane.classList.add('visible');
     };
+
+    // Fallback if onload never fires
+    setTimeout(function () {
+      loadPane.classList.remove('visible');
+      pane.classList.add('visible');
+    }, 6000);
   }
 
   // ── PLACEHOLDER (no URL) ── uses textContent, no innerHTML ──
