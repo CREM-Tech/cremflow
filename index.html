@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- CSP: only allow scripts/styles from self, fonts from Google, frames from known app domains -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; frame-src https://prefabflow-production.up.railway.app https://fieldflow-production-01ab.up.railway.app; img-src 'self' data:;">
 <title>CremFlow</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -23,6 +25,7 @@
     --green: #10B981;
     --red: #E24B4A;
     --amber: #F59E0B;
+    --orange: #F97316;
     --shell-h: 42px;
     --font: 'DM Sans', sans-serif;
     --mono: 'DM Mono', monospace;
@@ -30,7 +33,7 @@
     --t: 0.15s ease;
   }
 
-  /* Light mode */
+  /* ── LIGHT MODE ── */
   body.light {
     --navy: #F1F5F9;
     --border-subtle: rgba(0,0,0,0.08);
@@ -41,21 +44,69 @@
     background: #F8FAFC;
     color: rgba(0,0,0,0.88);
   }
-  body.light .top-bar { background: #F1F5F9; }
+  body.light .top-bar    { background: #F1F5F9; }
   body.light .status-bar { background: #F1F5F9; }
-  body.light .viewport { background: #F8FAFC; }
-  body.light .launcher { background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.07) 0%, transparent 70%); }
-  body.light .app-card { background: rgba(0,0,0,0.02); }
+  body.light .viewport   { background: #F8FAFC; }
+  body.light .launcher   { background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.07) 0%, transparent 70%); }
+  body.light .app-card   { background: rgba(0,0,0,0.02); }
   body.light .app-card:hover { background: rgba(0,0,0,0.04); }
-  body.light .logo-mark { box-shadow: 0 0 12px rgba(59,130,246,0.2); }
-  body.light .context-bar { background: rgba(0,0,0,0.02); }
+  body.light .logo-mark  { box-shadow: 0 0 12px rgba(59,130,246,0.2); }
   body.light .load-spinner { border-color: rgba(0,0,0,0.08); border-top-color: var(--blue); }
-  body.light .user-av { background: #DBEAFE; color: #1E40AF; }
+  body.light .user-av    { background: #DBEAFE; color: #1E40AF; }
+  body.light .app-tab:hover { background: rgba(0,0,0,0.05); }
+  body.light .tr-btn:hover  { background: rgba(0,0,0,0.05); }
 
   html, body { height: 100%; font-family: var(--font); background: #060D1A; color: var(--text-bright); overflow: hidden; }
   .shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-  /* TOP BAR */
+  /* ── AUTH GATE ── */
+  .auth-gate {
+    position: fixed; inset: 0; z-index: 1000;
+    background: #060D1A;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .auth-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 40px 36px;
+    width: 340px; display: flex; flex-direction: column; align-items: center; gap: 24px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+  .auth-mark {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 32px rgba(59,130,246,0.3);
+  }
+  .auth-mark svg { width: 28px; height: 28px; }
+  .auth-title { font-size: 20px; font-weight: 600; letter-spacing: -0.03em; text-align: center; }
+  .auth-sub   { font-size: 12px; color: var(--text-dim); text-align: center; margin-top: -16px; }
+  .auth-input {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-bright); font-size: 14px; font-family: var(--mono);
+    letter-spacing: 0.15em; text-align: center; outline: none;
+    transition: border-color var(--t);
+  }
+  .auth-input:focus { border-color: rgba(59,130,246,0.5); }
+  .auth-input.error { border-color: var(--red); animation: shake 0.3s ease; }
+  .auth-btn {
+    width: 100%; padding: 10px; border-radius: 8px;
+    background: var(--blue); border: none; color: #fff;
+    font-size: 13px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; transition: opacity var(--t);
+  }
+  .auth-btn:hover { opacity: 0.88; }
+  .auth-btn:disabled { opacity: 0.5; cursor: default; }
+  .auth-error { font-size: 11.5px; color: var(--red); text-align: center; min-height: 16px; }
+  .auth-attempts { font-size: 10.5px; color: var(--text-dim); font-family: var(--mono); }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25%      { transform: translateX(-6px); }
+    75%      { transform: translateX(6px); }
+  }
+
+  /* ── TOP BAR ── */
   .top-bar {
     height: var(--shell-h); background: var(--navy);
     display: flex; align-items: center; flex-wrap: nowrap; overflow: hidden;
@@ -97,11 +148,11 @@
   }
   .app-tab:hover { background: rgba(255,255,255,0.05); color: var(--text-bright); }
   .app-tab.active { background: rgba(255,255,255,0.09); color: var(--text-bright); border-color: var(--border-mid); }
-  .app-tab[data-app="prefab"].active { border-color: rgba(6,182,212,0.4); box-shadow: 0 0 0 1px rgba(6,182,212,0.12); }
-  .app-tab[data-app="field"].active  { border-color: rgba(234,179,8,0.4);  box-shadow: 0 0 0 1px rgba(234,179,8,0.12); }
+  .app-tab[data-app="prefab"].active { border-color: rgba(6,182,212,0.4);   box-shadow: 0 0 0 1px rgba(6,182,212,0.12); }
+  .app-tab[data-app="field"].active  { border-color: rgba(234,179,8,0.4);   box-shadow: 0 0 0 1px rgba(234,179,8,0.12); }
   .app-tab.soon { opacity: 0.4; cursor: default; }
   .app-tab.soon:hover { background: transparent; color: var(--text-mid); }
-  .tab-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .tab-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .tab-badge { font-size: 9px; color: var(--text-dim); font-family: var(--mono); }
 
   .top-right { margin-left: auto; display: flex; align-items: center; gap: 2px; padding: 0 12px; }
@@ -111,14 +162,11 @@
     color: var(--text-mid); cursor: pointer; background: transparent; border: none; transition: all var(--t);
   }
   .tr-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-bright); }
-  .notif-wrap { position: relative; }
-  .notif-pip { position: absolute; top: 3px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--red); border: 1.5px solid var(--navy); }
   .user-pill {
     display: flex; align-items: center; gap: 7px; padding: 3px 8px 3px 4px;
     border-radius: 20px; border: 1px solid var(--border-subtle);
-    cursor: pointer; margin-left: 6px; transition: all var(--t);
+    cursor: default; margin-left: 6px;
   }
-  .user-pill:hover { background: rgba(255,255,255,0.04); border-color: var(--border-mid); }
   .user-av {
     width: 24px; height: 24px; border-radius: 50%; background: #1E3A8A;
     display: flex; align-items: center; justify-content: center;
@@ -126,23 +174,20 @@
   }
   .user-name { font-size: 11.5px; font-weight: 500; color: var(--text-mid); }
 
-  /* Context bar */
-
-
-  /* Viewport */
+  /* ── VIEWPORT ── */
   .viewport { flex: 1; overflow: hidden; position: relative; background: #060D1A; }
 
+  /* iframes sandboxed — allow-same-origin needed for cross-origin auth passthrough */
   .app-pane { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 2; }
   .app-pane.visible { opacity: 1; pointer-events: all; }
   .app-pane iframe { width: 100%; height: 100%; border: none; display: block; }
 
-  /* Launcher */
+  /* ── LAUNCHER ── */
   .launcher {
     position: absolute; inset: 0; z-index: 5;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px;
     background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.05) 0%, transparent 70%);
   }
-
   .launcher-wordmark { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
   .launcher-mark {
     width: 44px; height: 44px; border-radius: 12px;
@@ -152,16 +197,15 @@
   }
   .launcher-mark svg { width: 24px; height: 24px; }
   .launcher-title { font-size: 30px; font-weight: 600; letter-spacing: -0.04em; }
-  .launcher-sub { font-size: 13px; color: var(--text-dim); text-align: center; }
+  .launcher-sub   { font-size: 13px; color: var(--text-dim); text-align: center; }
 
-  /* Cards layout */
+  /* ── APP CARDS ── */
   .app-cards-row {
     display: flex; flex-direction: row; flex-wrap: wrap;
-    gap: 14px; max-width: 680px; width: 100%; padding: 0 24px; justify-content: center;
+    gap: 14px; max-width: 780px; width: 100%; padding: 0 24px; justify-content: center;
   }
-  .app-card { width: 200px; }
-
   .app-card {
+    width: 200px;
     background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle);
     border-radius: 12px; padding: 18px 20px;
     cursor: pointer; transition: all 0.18s ease;
@@ -174,26 +218,28 @@
   .app-card:hover { background: rgba(255,255,255,0.055); border-color: var(--border-mid); transform: translateY(-1px); }
   .app-card:hover::before { opacity: 1; }
   .app-card.soon { opacity: 0.45; cursor: default; pointer-events: none; }
-  .app-card[data-app="prefab"]::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
-  .app-card[data-app="field"]::before  { background: linear-gradient(90deg, transparent, var(--yellow), transparent); }
+  .app-card[data-app="prefab"]::before  { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+  .app-card[data-app="field"]::before   { background: linear-gradient(90deg, transparent, var(--yellow), transparent); }
   .app-card[data-app="finance"]::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+  .app-card[data-app="vdc"]::before     { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+  .app-card[data-app="estimating"]::before { background: linear-gradient(90deg, transparent, var(--orange), transparent); }
 
-  .card-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-  .card-name { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-bright); }
-  .card-desc { font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+  .card-icon   { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+  .card-name   { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-bright); }
+  .card-desc   { font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
   .card-status {
     font-size: 10px; font-family: var(--mono); padding: 2px 7px; border-radius: 20px;
     display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; margin-top: 2px;
   }
   .sd { width: 5px; height: 5px; border-radius: 50%; }
-  .status-live { background: rgba(16,185,129,0.12); color: #6EE7B7; }
+  .status-live     { background: rgba(16,185,129,0.12);  color: #6EE7B7; }
   .status-live .sd { background: var(--green); }
-  .status-building { background: rgba(245,158,11,0.12); color: #FCD34D; }
+  .status-building     { background: rgba(245,158,11,0.12);  color: #FCD34D; }
   .status-building .sd { background: var(--amber); }
-  .status-soon { background: rgba(139,92,246,0.12); color: #C4B5FD; }
+  .status-soon     { background: rgba(139,92,246,0.12);  color: #C4B5FD; }
   .status-soon .sd { background: var(--purple); }
 
-  /* Loading */
+  /* ── LOADING ── */
   .load-pane {
     position: absolute; inset: 0; z-index: 10;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
@@ -207,22 +253,41 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .load-label { font-size: 12px; color: var(--text-dim); }
 
-  /* Status bar */
+  /* ── STATUS BAR ── */
   .status-bar {
     height: 26px; background: var(--navy); border-top: 1px solid var(--border-subtle);
     display: flex; align-items: center; padding: 0 14px; gap: 18px; flex-shrink: 0;
   }
   .sb-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--text-dim); font-family: var(--mono); }
-  .sb-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .sb-dot  { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.2); }
   .sb-item.ok .sb-dot { background: var(--green); }
-
-
 </style>
 </head>
 <body>
 <div class="shell">
 
-  <!-- TOP BAR -->
+  <!-- ══ AUTH GATE ══ -->
+  <div class="auth-gate" id="authGate">
+    <div class="auth-box">
+      <div class="auth-mark">
+        <svg viewBox="0 0 13 13" fill="none">
+          <path d="M2 6.5C2 4.015 4.015 2 6.5 2s4.5 2.015 4.5 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M6.5 11C8.985 11 11 8.985 11 6.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="6.5" cy="6.5" r="1.6" fill="white"/>
+        </svg>
+      </div>
+      <div>
+        <div class="auth-title">CremFlow</div>
+        <div class="auth-sub" style="margin-top:6px;">CREM Electrical · Team access only</div>
+      </div>
+      <input class="auth-input" id="authInput" type="password" placeholder="Enter access code" maxlength="32" autocomplete="off" spellcheck="false"/>
+      <button class="auth-btn" id="authBtn">Enter</button>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-attempts" id="authAttempts"></div>
+    </div>
+  </div>
+
+  <!-- ══ TOP BAR ══ -->
   <div class="top-bar">
     <div class="logo active" id="logoBtn">
       <div class="logo-mark">
@@ -237,16 +302,21 @@
 
     <div class="app-tabs">
       <div class="app-tab" data-app="prefab" id="tab-prefab">
-        <div class="tab-dot" style="background:var(--cyan);"></div>
-        PrefabFlow
+        <div class="tab-dot" style="background:var(--cyan);"></div>PrefabFlow
       </div>
       <div class="app-tab" data-app="field" id="tab-field">
-        <div class="tab-dot" style="background:var(--yellow);"></div>
-        FieldFlow
+        <div class="tab-dot" style="background:var(--yellow);"></div>FieldFlow
       </div>
       <div class="app-tab soon" data-app="finance">
-        <div class="tab-dot" style="background:var(--purple);"></div>
-        FinanceFlow
+        <div class="tab-dot" style="background:var(--purple);"></div>FinanceFlow
+        <span class="tab-badge">soon</span>
+      </div>
+      <div class="app-tab soon" data-app="vdc">
+        <div class="tab-dot" style="background:var(--cyan);"></div>VDCFlow
+        <span class="tab-badge">soon</span>
+      </div>
+      <div class="app-tab soon" data-app="estimating">
+        <div class="tab-dot" style="background:var(--orange);"></div>EstimatingFlow
         <span class="tab-badge">soon</span>
       </div>
     </div>
@@ -257,8 +327,6 @@
         <svg id="iconLight" width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:none;"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.2 3.2l1 1M11.8 11.8l1 1M12.8 3.2l-1 1M4.2 11.8l-1 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         <span id="modeLabel">Dark</span>
       </button>
-
-
       <div class="user-pill">
         <div class="user-av">ZS</div>
         <span class="user-name">Zech S.</span>
@@ -266,12 +334,10 @@
     </div>
   </div>
 
-
-
-  <!-- VIEWPORT -->
+  <!-- ══ VIEWPORT ══ -->
   <div class="viewport">
 
-    <!-- Home -->
+    <!-- Home launcher -->
     <div class="launcher" id="homeLauncher">
       <div style="text-align:center;">
         <div class="launcher-wordmark">
@@ -289,50 +355,78 @@
 
       <div class="app-cards-row">
 
-          <div class="app-card" data-app="prefab" id="card-prefab">
-            <div class="card-icon" style="background:rgba(6,182,212,0.12);">
-              <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
-                <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5"/>
-                <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
-                <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
-                <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".3"/>
-              </svg>
-            </div>
-            <div>
-              <div class="card-name">PrefabFlow</div>
-              <div class="card-desc">Prefab project management &amp; production tracking</div>
-            </div>
-            <div class="card-status status-live"><div class="sd"></div>Live</div>
+        <div class="app-card" data-app="prefab" id="card-prefab">
+          <div class="card-icon" style="background:rgba(6,182,212,0.12);">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
+              <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5"/>
+              <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
+              <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".6"/>
+              <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="#06B6D4" stroke-width="1.5" opacity=".3"/>
+            </svg>
           </div>
+          <div>
+            <div class="card-name">PrefabFlow</div>
+            <div class="card-desc">Prefab project management &amp; production tracking</div>
+          </div>
+          <div class="card-status status-live"><div class="sd"></div>Live</div>
+        </div>
 
-          <div class="app-card" data-app="field" id="card-field">
-            <div class="card-icon" style="background:rgba(234,179,8,0.12);">
-              <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
-                <circle cx="7" cy="6" r="3" stroke="#EAB308" stroke-width="1.5"/>
-                <path d="M1.5 16c0-3.038 2.462-5.5 5.5-5.5" stroke="#EAB308" stroke-width="1.5" stroke-linecap="round"/>
-                <circle cx="13" cy="9.5" r="2.5" stroke="#EAB308" stroke-width="1.5" opacity=".7"/>
-                <path d="M10.5 16c0-1.933 1.12-3.5 2.5-3.5s2.5 1.567 2.5 3.5" stroke="#EAB308" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
-              </svg>
-            </div>
-            <div>
-              <div class="card-name">FieldFlow</div>
-              <div class="card-desc">Manpower scheduling, field crew management &amp; labor tracking</div>
-            </div>
-            <div class="card-status status-building"><div class="sd"></div>In development</div>
+        <div class="app-card" data-app="field" id="card-field">
+          <div class="card-icon" style="background:rgba(234,179,8,0.12);">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
+              <circle cx="7" cy="6" r="3" stroke="#EAB308" stroke-width="1.5"/>
+              <path d="M1.5 16c0-3.038 2.462-5.5 5.5-5.5" stroke="#EAB308" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="13" cy="9.5" r="2.5" stroke="#EAB308" stroke-width="1.5" opacity=".7"/>
+              <path d="M10.5 16c0-1.933 1.12-3.5 2.5-3.5s2.5 1.567 2.5 3.5" stroke="#EAB308" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+            </svg>
           </div>
+          <div>
+            <div class="card-name">FieldFlow</div>
+            <div class="card-desc">Manpower scheduling, field crew management &amp; labor tracking</div>
+          </div>
+          <div class="card-status status-building"><div class="sd"></div>In development</div>
+        </div>
 
-          <div class="app-card soon" data-app="finance">
-            <div class="card-icon" style="background:rgba(139,92,246,0.12);">
-              <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
-                <path d="M2 13l4-5 3.5 3 3.5-6 3 4" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
-              </svg>
-            </div>
-            <div>
-              <div class="card-name">FinanceFlow</div>
-              <div class="card-desc">Job costing, labor budgets &amp; financial reporting</div>
-            </div>
-            <div class="card-status status-soon"><div class="sd"></div>Coming soon</div>
+        <div class="app-card soon" data-app="finance">
+          <div class="card-icon" style="background:rgba(139,92,246,0.12);">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
+              <path d="M2 13l4-5 3.5 3 3.5-6 3 4" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+            </svg>
           </div>
+          <div>
+            <div class="card-name">FinanceFlow</div>
+            <div class="card-desc">Job costing, labor budgets &amp; financial reporting</div>
+          </div>
+          <div class="card-status status-soon"><div class="sd"></div>Coming soon</div>
+        </div>
+
+        <div class="app-card soon" data-app="vdc">
+          <div class="card-icon" style="background:rgba(6,182,212,0.12);">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
+              <path d="M2 5l7-3 7 3v8l-7 3-7-3V5z" stroke="#06B6D4" stroke-width="1.5" stroke-linejoin="round" opacity=".8"/>
+              <path d="M9 2v14M2 5l7 3 7-3" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-name">VDCFlow</div>
+            <div class="card-desc">BIM coordination, clash detection &amp; model management</div>
+          </div>
+          <div class="card-status status-soon"><div class="sd"></div>Coming soon</div>
+        </div>
+
+        <div class="app-card soon" data-app="estimating">
+          <div class="card-icon" style="background:rgba(249,115,22,0.12);">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
+              <path d="M3 14h12M3 10h8M3 6h5" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
+              <path d="M13 6l2 2-2 2" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-name">EstimatingFlow</div>
+            <div class="card-desc">Takeoffs, bid management &amp; estimate tracking</div>
+          </div>
+          <div class="card-status status-soon"><div class="sd"></div>Coming soon</div>
+        </div>
 
       </div>
     </div>
@@ -343,16 +437,24 @@
       <div class="load-label" id="loadLabel">Loading...</div>
     </div>
 
-    <!-- App panes -->
-    <div class="app-pane" id="pane-prefab"><iframe id="iframe-prefab" title="PrefabFlow"></iframe></div>
-    <div class="app-pane" id="pane-field"><iframe id="iframe-field" title="FieldFlow"></iframe></div>
+    <!-- App panes — sandbox restricts iframe capabilities -->
+    <div class="app-pane" id="pane-prefab">
+      <iframe id="iframe-prefab" title="PrefabFlow"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
+      </iframe>
+    </div>
+    <div class="app-pane" id="pane-field">
+      <iframe id="iframe-field" title="FieldFlow"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
+      </iframe>
+    </div>
 
   </div>
 
   <!-- STATUS BAR -->
   <div class="status-bar">
-    <div class="sb-item ok"><div class="sb-dot"></div>Supabase connected</div>
-    <div class="sb-item ok"><div class="sb-dot"></div>Railway &middot; healthy</div>
+    <div class="sb-item ok"><div class="sb-dot"></div>CremFlow</div>
+    <div class="sb-item ok"><div class="sb-dot"></div>Railway &middot; live</div>
     <div class="sb-item" id="sbApp" style="display:none;margin-left:auto;">
       <div class="sb-dot" id="sbAppDot"></div>
       <span id="sbAppName"></span>
@@ -362,26 +464,129 @@
 
 </div>
 
-
-
 <script>
 (function () {
   'use strict';
 
+  // ── CONFIG ──────────────────────────────────────────────────
+  // Change PASSCODE to whatever you want your team to use.
+  // To update it later, just change this value and redeploy.
+  var PASSCODE         = 'CREM2024';
+  var MAX_ATTEMPTS     = 5;
+  var LOCKOUT_MINUTES  = 15;
+  var SESSION_KEY      = 'cf_auth';
+  var SESSION_HOURS    = 8;
+  // ────────────────────────────────────────────────────────────
+
   var apps = {
     prefab: { name: 'PrefabFlow', color: '#06B6D4', url: 'https://prefabflow-production.up.railway.app/' },
-    field:  { name: 'FieldFlow',  color: '#EAB308', url: '' }
+    field:  { name: 'FieldFlow',  color: '#EAB308', url: 'https://fieldflow-production-01ab.up.railway.app/' }
   };
 
-  var notifications = [
-    { app: 'FieldFlow',  text: '37 school conflicts need resolution', time: '2m ago',  color: '#EF4444', read: false },
-    { app: 'FieldFlow',  text: '3 pending approval requests',         time: '1h ago',  color: '#F59E0B', read: false },
-    { app: 'PrefabFlow', text: 'Bay 3 panel set ready for QC',        time: '3h ago',  color: '#10B981', read: true  }
-  ];
+  var currentApp   = null;
+  var switching    = false; // prevent rapid re-clicks
 
-  var currentApp = null;
+  // ── AUTH ──
+  function getSession() {
+    try {
+      var raw = sessionStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || !s.ts) return null;
+      var age = (Date.now() - s.ts) / 3600000;
+      if (age > SESSION_HOURS) { sessionStorage.removeItem(SESSION_KEY); return null; }
+      return s;
+    } catch (e) { return null; }
+  }
 
-  // Clock
+  function setSession() {
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() })); } catch (e) {}
+  }
+
+  function getLockout() {
+    try {
+      var raw = sessionStorage.getItem('cf_lockout');
+      if (!raw) return null;
+      var l = JSON.parse(raw);
+      if (Date.now() > l.until) { sessionStorage.removeItem('cf_lockout'); sessionStorage.removeItem('cf_attempts'); return null; }
+      return l;
+    } catch (e) { return null; }
+  }
+
+  function getAttempts() {
+    try { return parseInt(sessionStorage.getItem('cf_attempts') || '0', 10); } catch (e) { return 0; }
+  }
+
+  function recordFailedAttempt() {
+    try {
+      var attempts = getAttempts() + 1;
+      sessionStorage.setItem('cf_attempts', String(attempts));
+      if (attempts >= MAX_ATTEMPTS) {
+        sessionStorage.setItem('cf_lockout', JSON.stringify({ until: Date.now() + LOCKOUT_MINUTES * 60000 }));
+      }
+      return attempts;
+    } catch (e) { return 0; }
+  }
+
+  function initAuth() {
+    var gate = document.getElementById('authGate');
+
+    // Already authenticated this session
+    if (getSession()) { gate.style.display = 'none'; return; }
+
+    var input    = document.getElementById('authInput');
+    var btn      = document.getElementById('authBtn');
+    var errorEl  = document.getElementById('authError');
+    var attempEl = document.getElementById('authAttempts');
+
+    function checkLockout() {
+      var l = getLockout();
+      if (l) {
+        var mins = Math.ceil((l.until - Date.now()) / 60000);
+        errorEl.textContent  = 'Too many attempts. Try again in ' + mins + ' min.';
+        attempEl.textContent = '';
+        input.disabled = true;
+        btn.disabled   = true;
+        setTimeout(checkLockout, 10000);
+        return true;
+      }
+      input.disabled = false;
+      btn.disabled   = false;
+      return false;
+    }
+
+    checkLockout();
+
+    function attempt() {
+      if (checkLockout()) return;
+      var val = input.value.trim().toUpperCase();
+      if (!val) return;
+
+      if (val === PASSCODE.toUpperCase()) {
+        setSession();
+        sessionStorage.removeItem('cf_attempts');
+        sessionStorage.removeItem('cf_lockout');
+        gate.style.display = 'none';
+        input.value = '';
+      } else {
+        var attempts = recordFailedAttempt();
+        input.value = '';
+        input.classList.add('error');
+        setTimeout(function () { input.classList.remove('error'); }, 400);
+        if (checkLockout()) return;
+        var remaining = MAX_ATTEMPTS - attempts;
+        errorEl.textContent  = 'Incorrect code.';
+        attempEl.textContent = remaining > 0 ? remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining' : '';
+        input.focus();
+      }
+    }
+
+    btn.addEventListener('click', attempt);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt(); });
+    input.focus();
+  }
+
+  // ── CLOCK ──
   function tickClock() {
     var el = document.getElementById('sbClock');
     if (!el) return;
@@ -389,7 +594,7 @@
     el.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
   }
 
-  // Go home
+  // ── GO HOME ──
   function goHome() {
     currentApp = null;
     document.querySelectorAll('.app-tab').forEach(function (t) { t.classList.remove('active'); });
@@ -400,10 +605,15 @@
     document.getElementById('logoBtn').classList.add('active');
   }
 
-  // Switch app
+  // ── SWITCH APP ──
   function switchApp(appKey) {
+    if (switching) return;
     var app = apps[appKey];
     if (!app || appKey === currentApp) return;
+
+    switching = true;
+    setTimeout(function () { switching = false; }, 500);
+
     currentApp = appKey;
 
     document.getElementById('logoBtn').classList.remove('active');
@@ -417,6 +627,7 @@
     document.getElementById('sbApp').style.display = 'flex';
     document.getElementById('sbApp').style.marginLeft = 'auto';
     document.getElementById('sbAppDot').style.background = app.color;
+    // Use textContent — never innerHTML — to prevent XSS
     document.getElementById('sbAppName').textContent = app.name;
 
     var pane    = document.getElementById('pane-' + appKey);
@@ -425,7 +636,7 @@
 
     if (!app.url) {
       pane.classList.add('visible');
-      showPlaceholder(pane, appKey, app);
+      showPlaceholder(pane, app);
       return;
     }
 
@@ -456,56 +667,51 @@
     };
   }
 
-  function showPlaceholder(pane, appKey, app) {
+  // ── PLACEHOLDER (no URL) ── uses textContent, no innerHTML ──
+  function showPlaceholder(pane, app) {
     if (pane.querySelector('.ph-msg')) return;
-    var el = document.createElement('div');
-    el.className = 'ph-msg';
-    el.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;';
-    el.innerHTML = '<div style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.8);">' + app.name + '</div>'
-      + '<div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;max-width:280px;">No URL configured yet.</div>'
-      + '<a href="#" style="padding:8px 16px;border-radius:7px;font-size:12px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);text-decoration:none;">Coming soon</a>';
-    pane.appendChild(el);
+    var wrap = document.createElement('div');
+    wrap.className = 'ph-msg';
+    wrap.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;';
+
+    var title = document.createElement('div');
+    title.style.cssText = 'font-size:15px;font-weight:600;color:rgba(255,255,255,0.8);';
+    title.textContent = app.name;
+
+    var sub = document.createElement('div');
+    sub.style.cssText = 'font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;max-width:280px;';
+    sub.textContent = 'This app is coming soon.';
+
+    wrap.appendChild(title);
+    wrap.appendChild(sub);
+    pane.appendChild(wrap);
   }
 
-  function renderNotifs() {
-    var list = document.getElementById('notifList');
-    if (!list) return;
-    var html = '';
-    notifications.forEach(function (n) {
-      html += '<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);opacity:' + (n.read ? '0.45' : '1') + ';">'
-        + '<div style="width:7px;height:7px;border-radius:50%;background:' + n.color + ';flex-shrink:0;margin-top:4px;"></div>'
-        + '<div><div style="font-size:11.5px;color:rgba(255,255,255,0.85);line-height:1.4;">' + n.text + '</div>'
-        + '<div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;">' + n.app + ' &middot; ' + n.time + '</div></div></div>';
-    });
-    list.innerHTML = html || '<div style="font-size:12px;color:rgba(255,255,255,0.3);padding:8px 0;">No notifications.</div>';
-  }
-
-  // Boot
+  // ── BOOT ──
   document.addEventListener('DOMContentLoaded', function () {
-    // Logo
-    document.getElementById('logoBtn').addEventListener('click', goHome);
+    initAuth();
 
-    // Tabs
+    document.getElementById('logoBtn').addEventListener('click', goHome);
     document.getElementById('tab-prefab').addEventListener('click', function () { switchApp('prefab'); });
     document.getElementById('tab-field').addEventListener('click',  function () { switchApp('field'); });
-
-    // Home cards
     document.getElementById('card-prefab').addEventListener('click', function () { switchApp('prefab'); });
     document.getElementById('card-field').addEventListener('click',  function () { switchApp('field'); });
 
-    // Context bar back
-
-    // Dark / Light mode toggle
-    var isLight = false;
-    document.getElementById('btnDarkMode').addEventListener('click', function () {
-      isLight = !isLight;
+    // Dark / Light mode — persist preference
+    var isLight = localStorage.getItem('cf_theme') === 'light';
+    function applyTheme() {
       document.body.classList.toggle('light', isLight);
-      document.getElementById('iconDark').style.display  = isLight ? 'none'  : 'inline';
+      document.getElementById('iconDark').style.display  = isLight ? 'none'   : 'inline';
       document.getElementById('iconLight').style.display = isLight ? 'inline' : 'none';
       document.getElementById('modeLabel').textContent   = isLight ? 'Light'  : 'Dark';
+    }
+    applyTheme();
+    document.getElementById('btnDarkMode').addEventListener('click', function () {
+      isLight = !isLight;
+      try { localStorage.setItem('cf_theme', isLight ? 'light' : 'dark'); } catch (e) {}
+      applyTheme();
     });
 
-    // Clock
     tickClock();
     setInterval(tickClock, 10000);
   });
