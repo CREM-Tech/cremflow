@@ -98,39 +98,40 @@
   /* ── AUTH GATE ── */
   .auth-gate {
     position: fixed; inset: 0; z-index: 1000;
-    background: var(--surface-2);
+    background: #f0f2f5;
     display: flex; align-items: center; justify-content: center;
   }
   .auth-gate.unlocked { display: none; }
   .auth-box {
-    background: #fff;
-    border: 1px solid var(--line);
+    background: #ffffff;
+    border: 1px solid rgba(0,22,65,0.15);
     border-radius: 16px; padding: 40px 36px;
-    width: 360px; display: flex; flex-direction: column; align-items: center; gap: 20px;
-    box-shadow: 0 20px 60px rgba(0,22,65,0.12);
+    width: 360px; display: flex; flex-direction: column; align-items: center; gap: 18px;
+    box-shadow: 0 20px 60px rgba(0,22,65,0.14);
   }
   .auth-mark { display: none; }
-  .auth-title { font-family: var(--serif); font-size: 26px; font-weight: 400; letter-spacing: -0.02em; text-align: center; color: var(--ink); }
-  .auth-sub   { font-size: 12px; color: var(--muted); text-align: center; margin-top: -12px; }
+  .auth-title { font-family: var(--serif); font-size: 26px; font-weight: 400; letter-spacing: -0.02em; text-align: center; color: #001641; }
+  .auth-sub   { font-size: 12px; color: #5a7a9a; text-align: center; margin-top: -10px; }
   .auth-input {
-    width: 100%; padding: 10px 14px; border-radius: 8px;
-    background: var(--surface-2); border: 1px solid var(--line);
-    color: var(--ink); font-size: 14px; font-family: var(--mono);
-    letter-spacing: 0.15em; text-align: center; outline: none;
-    transition: border-color var(--t);
+    width: 100%; padding: 11px 14px; border-radius: 8px;
+    background: #f8f9fa; border: 1.5px solid #d0d7e0;
+    color: #001641; font-size: 14px; font-family: var(--font);
+    outline: none; transition: border-color var(--t), box-shadow var(--t);
   }
-  .auth-input:focus { border-color: var(--crem-green); box-shadow: 0 0 0 3px rgba(98,187,70,0.15); }
+  .auth-input::placeholder { color: #9aacbd; }
+  .auth-input:focus { border-color: var(--crem-green); box-shadow: 0 0 0 3px rgba(98,187,70,0.15); background: #fff; }
   .auth-input.error { border-color: #DC2626; animation: shake 0.3s ease; }
+  .auth-input#authInput { letter-spacing: 0.15em; text-align: center; font-family: var(--mono); }
   .auth-btn {
-    width: 100%; padding: 10px; border-radius: 8px;
-    background: var(--crem-navy); border: none; color: #fff;
+    width: 100%; padding: 11px; border-radius: 8px;
+    background: #001641; border: none; color: #fff;
     font-size: 13px; font-weight: 600; font-family: var(--font);
-    cursor: pointer; transition: all var(--t);
+    cursor: pointer; transition: all var(--t); letter-spacing: 0.03em;
   }
-  .auth-btn:hover { background: var(--crem-green); color: var(--crem-navy); }
+  .auth-btn:hover { background: var(--crem-green); color: #001641; }
   .auth-btn:disabled { opacity: 0.5; cursor: default; }
   .auth-error { font-size: 11.5px; color: #DC2626; text-align: center; min-height: 16px; }
-  .auth-attempts { font-size: 10.5px; color: var(--muted); font-family: var(--mono); }
+  .auth-attempts { font-size: 10.5px; color: #9aacbd; font-family: var(--mono); }
   @keyframes shake {
     0%,100% { transform: translateX(0); }
     25%      { transform: translateX(-6px); }
@@ -487,15 +488,11 @@
 (function () {
   'use strict';
 
-  // ── CONFIG ──────────────────────────────────────────────────
-  // Change PASSCODE to whatever you want your team to use.
-  // To update it later, just change this value and redeploy.
-  var PASSCODE         = 'MERC2026';
-  var MAX_ATTEMPTS     = 5;
-  var LOCKOUT_MINUTES  = 15;
-  var SESSION_KEY      = 'cf_auth_v2';
-  var SESSION_HOURS    = 8;
-  // ────────────────────────────────────────────────────────────
+  var PASSCODE        = 'MERC2026';
+  var MAX_ATTEMPTS    = 5;
+  var LOCKOUT_MINUTES = 15;
+
+  var currentApp = null;
 
   var apps = {
     prefab:     { name: 'PrefabFlow',     color: '#06B6D4', url: 'https://prefabflow-production.up.railway.app/' },
@@ -505,25 +502,7 @@
     finance:    { name: 'FinanceFlow',    color: '#8B5CF6', url: 'https://financeflow-crem.up.railway.app/' }
   };
 
-  var currentApp   = null;
-
-  // ── AUTH ──
-  function getSession() {
-    try {
-      var raw = sessionStorage.getItem(SESSION_KEY);
-      if (!raw) return null;
-      var s = JSON.parse(raw);
-      if (!s || !s.ts) return null;
-      var age = (Date.now() - s.ts) / 3600000;
-      if (age > SESSION_HOURS) { sessionStorage.removeItem(SESSION_KEY); return null; }
-      return s;
-    } catch (e) { return null; }
-  }
-
-  function setSession(name) {
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now(), name: name || 'User' })); } catch (e) {}
-  }
-
+  // ── LOCKOUT (session only, resets on close) ──
   function getLockout() {
     try {
       var raw = sessionStorage.getItem('cf_lockout');
@@ -549,17 +528,9 @@
     } catch (e) { return 0; }
   }
 
+  // ── AUTH — required every page load ──
   function initAuth() {
-    var gate = document.getElementById('authGate');
-
-    // Already authenticated — restore name and hide gate
-    var sess = getSession();
-    if (sess) {
-      gate.classList.add('unlocked');
-      setUserDisplay(sess.name || 'User');
-      return;
-    }
-
+    var gate      = document.getElementById('authGate');
     var nameInput = document.getElementById('authName');
     var input     = document.getElementById('authInput');
     var btn       = document.getElementById('authBtn');
@@ -572,13 +543,15 @@
         var mins = Math.ceil((l.until - Date.now()) / 60000);
         errorEl.textContent  = 'Too many attempts. Try again in ' + mins + ' min.';
         attempEl.textContent = '';
-        input.disabled = true;
-        btn.disabled   = true;
+        input.disabled    = true;
+        btn.disabled      = true;
+        nameInput.disabled = true;
         setTimeout(checkLockout, 10000);
         return true;
       }
-      input.disabled = false;
-      btn.disabled   = false;
+      input.disabled    = false;
+      btn.disabled      = false;
+      nameInput.disabled = false;
       return false;
     }
 
@@ -588,18 +561,14 @@
       if (checkLockout()) return;
       var name = nameInput.value.trim();
       var val  = input.value.trim().toUpperCase();
-      if (!name) { nameInput.focus(); errorEl.textContent = 'Please enter your name.'; return; }
+      if (!name) { errorEl.textContent = 'Please enter your name.'; nameInput.focus(); return; }
       if (!val)  { input.focus(); return; }
 
       if (val === PASSCODE.toUpperCase()) {
-        setSession(name);
         sessionStorage.removeItem('cf_attempts');
         sessionStorage.removeItem('cf_lockout');
         setUserDisplay(name);
         gate.classList.add('unlocked');
-        input.value = '';
-        nameInput.value = '';
-        errorEl.textContent = '';
       } else {
         var attempts = recordFailedAttempt();
         input.value = '';
@@ -614,17 +583,16 @@
     }
 
     btn.addEventListener('click', attempt);
-    nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { input.focus(); } });
-    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt(); });
+    nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') input.focus(); });
+    input.addEventListener('keydown',     function (e) { if (e.key === 'Enter') attempt(); });
     nameInput.focus();
   }
 
   function setUserDisplay(name) {
     var parts    = name.trim().split(' ');
     var first    = parts[0] || '';
-    var last     = parts[parts.length - 1] || '';
-    var initials = (first[0] || '') + (parts.length > 1 ? last[0] || '' : '');
-    var display  = first + (parts.length > 1 ? ' ' + last[0] + '.' : '');
+    var initials = (first[0] || '') + (parts.length > 1 ? (parts[parts.length - 1][0] || '') : '');
+    var display  = first + (parts.length > 1 ? ' ' + parts[parts.length - 1][0] + '.' : '');
     document.getElementById('userAv').textContent   = initials.toUpperCase();
     document.getElementById('userName').textContent = display;
   }
@@ -652,7 +620,6 @@
   function switchApp(appKey) {
     var app = apps[appKey];
     if (!app) return;
-
     currentApp = appKey;
 
     document.getElementById('logoBtn').classList.remove('active');
@@ -668,54 +635,33 @@
     document.getElementById('sbAppDot').style.background = app.color;
     document.getElementById('sbAppName').textContent = app.name;
 
-    var pane    = document.getElementById('pane-' + appKey);
-    var iframe  = document.getElementById('iframe-' + appKey);
+    var pane     = document.getElementById('pane-' + appKey);
+    var iframe   = document.getElementById('iframe-' + appKey);
     var loadPane = document.getElementById('loadPane');
 
-    if (!app.url) {
-      pane.classList.add('visible');
-      showPlaceholder(pane, app);
-      return;
-    }
+    if (!app.url) { pane.classList.add('visible'); showPlaceholder(pane, app); return; }
 
-    // Always load fresh — timestamp prevents browser caching old version
     var freshUrl = app.url + (app.url.includes('?') ? '&' : '?') + '_t=' + Date.now();
     loadPane.classList.add('visible');
     document.getElementById('loadLabel').textContent = 'Loading ' + app.name + '...';
     iframe.src = freshUrl;
 
-    iframe.onload = function () {
-      loadPane.classList.remove('visible');
-      pane.classList.add('visible');
-    };
-
-    iframe.onerror = function () {
-      loadPane.classList.remove('visible');
-      pane.classList.add('visible');
-    };
-
-    // Fallback if onload never fires
-    setTimeout(function () {
-      loadPane.classList.remove('visible');
-      pane.classList.add('visible');
-    }, 6000);
+    iframe.onload  = function () { loadPane.classList.remove('visible'); pane.classList.add('visible'); };
+    iframe.onerror = function () { loadPane.classList.remove('visible'); pane.classList.add('visible'); };
+    setTimeout(function () { loadPane.classList.remove('visible'); pane.classList.add('visible'); }, 6000);
   }
 
-  // ── PLACEHOLDER (no URL) ── uses textContent, no innerHTML ──
   function showPlaceholder(pane, app) {
     if (pane.querySelector('.ph-msg')) return;
-    var wrap = document.createElement('div');
+    var wrap  = document.createElement('div');
     wrap.className = 'ph-msg';
     wrap.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;';
-
     var title = document.createElement('div');
-    title.style.cssText = 'font-size:15px;font-weight:600;color:rgba(255,255,255,0.8);';
+    title.style.cssText = 'font-size:15px;font-weight:600;color:var(--ink);';
     title.textContent = app.name;
-
-    var sub = document.createElement('div');
-    sub.style.cssText = 'font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;max-width:280px;';
+    var sub   = document.createElement('div');
+    sub.style.cssText = 'font-size:12px;color:var(--muted);line-height:1.6;max-width:280px;';
     sub.textContent = 'This app is coming soon.';
-
     wrap.appendChild(title);
     wrap.appendChild(sub);
     pane.appendChild(wrap);
@@ -726,18 +672,19 @@
     initAuth();
 
     document.getElementById('logoBtn').addEventListener('click', goHome);
-    document.getElementById('tab-prefab').addEventListener('click', function () { switchApp('prefab'); });
-    document.getElementById('tab-field').addEventListener('click',       function () { switchApp('field'); });
-    document.getElementById('tab-estimating').addEventListener('click',  function () { switchApp('estimating'); });
-    document.getElementById('tab-vdc').addEventListener('click',         function () { switchApp('vdc'); });
-    document.getElementById('tab-finance').addEventListener('click',     function () { switchApp('finance'); });
-    document.getElementById('card-estimating').addEventListener('click', function () { switchApp('estimating'); });
-    document.getElementById('card-vdc').addEventListener('click',        function () { switchApp('vdc'); });
-    document.getElementById('card-finance').addEventListener('click',    function () { switchApp('finance'); });
-    document.getElementById('card-prefab').addEventListener('click', function () { switchApp('prefab'); });
-    document.getElementById('card-field').addEventListener('click',  function () { switchApp('field'); });
 
-    // Dark / Light mode — persist preference
+    document.getElementById('tab-prefab').addEventListener('click',      function () { switchApp('prefab'); });
+    document.getElementById('tab-field').addEventListener('click',       function () { switchApp('field'); });
+    document.getElementById('tab-finance').addEventListener('click',     function () { switchApp('finance'); });
+    document.getElementById('tab-vdc').addEventListener('click',         function () { switchApp('vdc'); });
+    document.getElementById('tab-estimating').addEventListener('click',  function () { switchApp('estimating'); });
+
+    document.getElementById('card-prefab').addEventListener('click',     function () { switchApp('prefab'); });
+    document.getElementById('card-field').addEventListener('click',      function () { switchApp('field'); });
+    document.getElementById('card-finance').addEventListener('click',    function () { switchApp('finance'); });
+    document.getElementById('card-vdc').addEventListener('click',        function () { switchApp('vdc'); });
+    document.getElementById('card-estimating').addEventListener('click', function () { switchApp('estimating'); });
+
     var isDark = localStorage.getItem('cf_theme') === 'dark';
     function applyTheme() {
       document.body.classList.toggle('dark', isDark);
