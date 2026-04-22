@@ -6,99 +6,131 @@
 <!-- CSP: only allow scripts/styles from self, fonts from Google, frames from known app domains -->
 <title>CremFlow</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --navy: #0F172A;
-    --border-subtle: rgba(255,255,255,0.07);
-    --border-mid: rgba(255,255,255,0.12);
-    --text-dim: rgba(255,255,255,0.35);
-    --text-mid: rgba(255,255,255,0.55);
-    --text-bright: rgba(255,255,255,0.92);
-    --blue: #3B82F6;
-    --cyan: #06B6D4;
+    /* CREM brand */
+    --crem-navy:  #001641;
+    --crem-green: #62bb46;
+    --crem-orange:#f16122;
+    /* App colors — do not change */
+    --cyan:   #06B6D4;
     --yellow: #EAB308;
     --purple: #8B5CF6;
-    --green: #10B981;
-    --red: #E24B4A;
-    --amber: #F59E0B;
+    --red:    #EF4444;
     --orange: #F97316;
-    --shell-h: 42px;
-    --font: 'DM Sans', sans-serif;
-    --mono: 'DM Mono', monospace;
-    --radius: 6px;
+    --blue:   #3B82F6;
+    --green:  #10B981;
+    --amber:  #F59E0B;
+    /* FinanceFlow-style surface tokens, CREM-colored */
+    --navy:         #001641;
+    --accent:       #62bb46;
+    --accent-dark:  #4a9234;
+    --accent-light: #a8d99a;
+    --accent-ghost: #f0f9ed;
+    --ink:          #001641;
+    --ink-soft:     #1a3a6e;
+    --muted:        #5a7a9a;
+    --line:         rgba(0,22,65,0.12);
+    --line-soft:    rgba(0,22,65,0.06);
+    --surface:      #FFFFFF;
+    --surface-2:    #F4F6F9;
+    --border-subtle: rgba(0,22,65,0.1);
+    --border-mid:    rgba(0,22,65,0.2);
+    --text-dim:      #5a7a9a;
+    --text-mid:      #1a3a6e;
+    --text-bright:   #001641;
+    --shell-h: 44px;
+    --font:  'Instrument Sans', -apple-system, system-ui, sans-serif;
+    --serif: 'Fraunces', Georgia, serif;
+    --mono:  'JetBrains Mono', monospace;
+    --radius: 8px;
     --t: 0.15s ease;
   }
 
-  /* ── LIGHT MODE ── */
-  body.light {
-    --navy: #F1F5F9;
-    --border-subtle: rgba(0,0,0,0.08);
-    --border-mid: rgba(0,0,0,0.14);
-    --text-dim: rgba(0,0,0,0.38);
-    --text-mid: rgba(0,0,0,0.55);
-    --text-bright: rgba(0,0,0,0.88);
-    background: #F8FAFC;
-    color: rgba(0,0,0,0.88);
+  /* ── DARK MODE ── */
+  body.dark {
+    --surface:    #001020;
+    --surface-2:  #001641;
+    --line:       rgba(255,255,255,0.08);
+    --ink:        rgba(255,255,255,0.92);
+    --ink-soft:   rgba(255,255,255,0.65);
+    --muted:      rgba(255,255,255,0.4);
+    --text-bright: rgba(255,255,255,0.92);
+    --text-mid:    rgba(255,255,255,0.65);
+    --text-dim:    rgba(255,255,255,0.38);
+    --border-subtle: rgba(255,255,255,0.08);
+    --border-mid:    rgba(255,255,255,0.14);
+    background: #001020;
+    color: rgba(255,255,255,0.92);
   }
-  body.light .top-bar    { background: #F1F5F9; }
-  body.light .status-bar { background: #F1F5F9; }
-  body.light .viewport   { background: #F8FAFC; }
-  body.light .launcher   { background: #F8FAFC; }
-  body.light .app-card   { background: rgba(0,0,0,0.02); }
-  body.light .app-card:hover { background: rgba(0,0,0,0.04); }
-  body.light .logo-mark  { box-shadow: 0 0 12px rgba(59,130,246,0.2); }
-  body.light .load-spinner { border-color: rgba(0,0,0,0.08); border-top-color: var(--blue); }
-  body.light .user-av    { background: #DBEAFE; color: #1E40AF; }
-  body.light .app-tab:hover { background: rgba(0,0,0,0.05); }
-  body.light .tr-btn:hover  { background: rgba(0,0,0,0.05); }
+  body.dark .top-bar    { background: #001641; border-bottom-color: rgba(255,255,255,0.08); }
+  body.dark .status-bar { background: #001641; border-top-color: rgba(255,255,255,0.08); }
+  body.dark .viewport   { background: #001020; }
+  body.dark .launcher   { background: #001020; }
+  body.dark .app-card   { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+  body.dark .app-card:hover { background: rgba(98,187,70,0.08); border-color: rgba(98,187,70,0.25); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  body.dark .logo-name  { color: #fff; }
+  body.dark .logo-name em { color: var(--crem-orange); }
+  body.dark .logo       { border-right-color: rgba(255,255,255,0.08); }
+  body.dark .logo:hover { background: rgba(98,187,70,0.08); }
+  body.dark .app-tab    { color: rgba(255,255,255,0.5); }
+  body.dark .app-tab:hover { background: rgba(98,187,70,0.1); color: #fff; }
+  body.dark .app-tab.active { background: var(--crem-green); color: var(--crem-navy); border-color: var(--crem-green); }
+  body.dark .tr-btn     { color: rgba(255,255,255,0.5); }
+  body.dark .tr-btn:hover { background: rgba(98,187,70,0.1); color: var(--crem-green); }
+  body.dark .user-pill  { border-color: rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
+  body.dark .user-av    { background: var(--crem-green); color: var(--crem-navy); }
+  body.dark .user-name  { color: rgba(255,255,255,0.6); }
+  body.dark .card-name  { color: rgba(255,255,255,0.9); }
+  body.dark .card-desc  { color: rgba(255,255,255,0.4); }
+  body.dark .launcher-title { color: #fff; }
+  body.dark .launcher-sub   { color: rgba(255,255,255,0.4); }
+  body.dark .load-spinner   { border-color: rgba(255,255,255,0.08); border-top-color: var(--crem-green); }
+  body.dark .sb-item    { color: rgba(255,255,255,0.38); }
+  body.dark .tab-badge  { color: rgba(255,255,255,0.25); }
 
-  html, body { height: 100%; font-family: var(--font); background: #060D1A; color: var(--text-bright); overflow: hidden; }
+  html, body { height: 100%; font-family: var(--font); background: var(--surface); color: var(--ink); overflow: hidden; -webkit-font-smoothing: antialiased; }
   .shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
   /* ── AUTH GATE ── */
   .auth-gate {
     position: fixed; inset: 0; z-index: 1000;
-    background: #060D1A;
+    background: var(--surface-2);
     display: flex; align-items: center; justify-content: center;
   }
+  .auth-gate.unlocked { display: none; }
   .auth-box {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: #fff;
+    border: 1px solid var(--line);
     border-radius: 16px; padding: 40px 36px;
-    width: 340px; display: flex; flex-direction: column; align-items: center; gap: 24px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    width: 360px; display: flex; flex-direction: column; align-items: center; gap: 20px;
+    box-shadow: 0 20px 60px rgba(0,22,65,0.12);
   }
-  .auth-mark {
-    width: 52px; height: 52px; border-radius: 14px;
-    background: linear-gradient(135deg, var(--blue), var(--cyan));
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 32px rgba(59,130,246,0.3);
-  }
-  .auth-mark svg { width: 28px; height: 28px; }
-  .auth-title { font-size: 20px; font-weight: 600; letter-spacing: -0.03em; text-align: center; }
-  .auth-sub   { font-size: 12px; color: var(--text-dim); text-align: center; margin-top: -16px; }
+  .auth-mark { display: none; }
+  .auth-title { font-family: var(--serif); font-size: 26px; font-weight: 400; letter-spacing: -0.02em; text-align: center; color: var(--ink); }
+  .auth-sub   { font-size: 12px; color: var(--muted); text-align: center; margin-top: -12px; }
   .auth-input {
     width: 100%; padding: 10px 14px; border-radius: 8px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text-bright); font-size: 14px; font-family: var(--mono);
+    background: var(--surface-2); border: 1px solid var(--line);
+    color: var(--ink); font-size: 14px; font-family: var(--mono);
     letter-spacing: 0.15em; text-align: center; outline: none;
     transition: border-color var(--t);
   }
-  .auth-input:focus { border-color: rgba(59,130,246,0.5); }
-  .auth-input.error { border-color: var(--red); animation: shake 0.3s ease; }
+  .auth-input:focus { border-color: var(--crem-green); box-shadow: 0 0 0 3px rgba(98,187,70,0.15); }
+  .auth-input.error { border-color: #DC2626; animation: shake 0.3s ease; }
   .auth-btn {
     width: 100%; padding: 10px; border-radius: 8px;
-    background: var(--blue); border: none; color: #fff;
+    background: var(--crem-navy); border: none; color: #fff;
     font-size: 13px; font-weight: 600; font-family: var(--font);
-    cursor: pointer; transition: opacity var(--t);
+    cursor: pointer; transition: all var(--t);
   }
-  .auth-btn:hover { opacity: 0.88; }
+  .auth-btn:hover { background: var(--crem-green); color: var(--crem-navy); }
   .auth-btn:disabled { opacity: 0.5; cursor: default; }
-  .auth-error { font-size: 11.5px; color: var(--red); text-align: center; min-height: 16px; }
-  .auth-attempts { font-size: 10.5px; color: var(--text-dim); font-family: var(--mono); }
+  .auth-error { font-size: 11.5px; color: #DC2626; text-align: center; min-height: 16px; }
+  .auth-attempts { font-size: 10.5px; color: var(--muted); font-family: var(--mono); }
   @keyframes shake {
     0%,100% { transform: translateX(0); }
     25%      { transform: translateX(-6px); }
@@ -107,77 +139,70 @@
 
   /* ── TOP BAR ── */
   .top-bar {
-    height: var(--shell-h); background: var(--navy);
+    height: var(--shell-h); background: #fff;
     display: flex; align-items: center; flex-wrap: nowrap; overflow: hidden;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--line);
     flex-shrink: 0; position: relative; z-index: 100;
   }
 
   .logo {
-    display: flex; align-items: center; gap: 9px;
+    display: flex; align-items: center; gap: 10px;
     padding: 0 18px; height: 100%;
-    border-right: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--line);
     cursor: pointer; transition: background var(--t);
     flex-shrink: 0; position: relative; user-select: none;
   }
   .logo:hover { background: rgba(255,255,255,0.05); }
   .logo::after {
     content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--blue), var(--cyan));
+    background: linear-gradient(90deg, var(--crem-navy), var(--crem-green));
     opacity: 0; transition: opacity var(--t);
   }
   .logo.active::after { opacity: 1; }
-  .logo-mark {
-    width: 24px; height: 24px; border-radius: 6px;
-    background: linear-gradient(135deg, var(--blue), var(--cyan));
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    box-shadow: 0 0 12px rgba(59,130,246,0.3);
-  }
-  .logo-mark svg { width: 13px; height: 13px; }
-  .logo-name { font-size: 13.5px; font-weight: 600; color: var(--text-bright); letter-spacing: -0.02em; }
+  .logo-mark { display: none; }
+  .logo-name { font-family: var(--serif); font-size: 18px; font-weight: 500; letter-spacing: -0.02em; color: var(--ink); line-height: 1; }
+  .logo-name em { font-style: italic; color: var(--crem-green); }
 
   .app-tabs { display: flex; align-items: center; height: 100%; padding: 0 6px; gap: 2px; flex-shrink: 0; }
 
   .app-tab {
     display: flex; align-items: center; gap: 6px;
-    padding: 0 11px; height: 28px; border-radius: var(--radius);
-    font-size: 12px; font-weight: 500; color: var(--text-mid);
+    padding: 0 12px; height: 30px; border-radius: var(--radius);
+    font-size: 12.5px; font-weight: 500; color: var(--text-mid);
     cursor: pointer; transition: all var(--t); white-space: nowrap;
-    border: 1px solid transparent; user-select: none;
+    border: 1px solid transparent; user-select: none; font-family: var(--font);
   }
   .app-tab:hover { background: rgba(255,255,255,0.05); color: var(--text-bright); }
   .app-tab.active { background: rgba(255,255,255,0.09); color: var(--text-bright); border-color: var(--border-mid); }
-  .app-tab[data-app="prefab"].active { border-color: rgba(6,182,212,0.4);   box-shadow: 0 0 0 1px rgba(6,182,212,0.12); }
-  .app-tab[data-app="field"].active  { border-color: rgba(234,179,8,0.4);   box-shadow: 0 0 0 1px rgba(234,179,8,0.12); }
   .app-tab.soon { opacity: 0.4; cursor: default; }
   .app-tab.soon:hover { background: transparent; color: var(--text-mid); }
   .tab-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .tab-badge { font-size: 9px; color: var(--text-dim); font-family: var(--mono); }
 
-  .top-right { margin-left: auto; display: flex; align-items: center; gap: 2px; padding: 0 12px; }
+  .top-right { margin-left: auto; display: flex; align-items: center; gap: 4px; padding: 0 14px; }
   .tr-btn {
-    display: flex; align-items: center; gap: 5px; padding: 4px 9px;
-    border-radius: var(--radius); font-size: 11.5px; font-family: var(--font);
-    color: var(--text-mid); cursor: pointer; background: transparent; border: none; transition: all var(--t);
+    display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+    border-radius: var(--radius); font-size: 12px; font-family: var(--font);
+    color: var(--text-mid); cursor: pointer; background: transparent; border: 1px solid transparent; transition: all var(--t);
   }
   .tr-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-bright); }
   .user-pill {
-    display: flex; align-items: center; gap: 7px; padding: 3px 8px 3px 4px;
-    border-radius: 20px; border: 1px solid var(--border-subtle);
-    cursor: default; margin-left: 6px;
+    display: flex; align-items: center; gap: 7px; padding: 4px 10px 4px 5px;
+    border-radius: 20px; border: 1px solid var(--line);
+    cursor: default; margin-left: 4px; background: var(--surface-2);
   }
   .user-av {
-    width: 24px; height: 24px; border-radius: 50%; background: #1E3A8A;
+    width: 24px; height: 24px; border-radius: 50%; background: var(--navy);
     display: flex; align-items: center; justify-content: center;
     font-size: 9px; font-weight: 600; color: #93C5FD; font-family: var(--mono);
   }
-  .user-name { font-size: 11.5px; font-weight: 500; color: var(--text-mid); }
+  .user-name { font-size: 12px; font-weight: 500; color: var(--text-mid); }
 
   /* ── VIEWPORT ── */
-  .viewport { flex: 1; overflow: hidden; position: relative; background: #060D1A; }
+  .viewport { flex: 1; overflow: hidden; position: relative; background: var(--surface-2); }
 
   /* iframes sandboxed — allow-same-origin needed for cross-origin auth passthrough */
-  .app-pane { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 2; background: #fff; }
+  .app-pane { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 2; background: var(--surface); }
   .app-pane.visible { opacity: 1; pointer-events: all; }
   .app-pane iframe { width: 100%; height: 100%; border: none; display: block; }
 
@@ -185,18 +210,19 @@
   .launcher {
     position: absolute; inset: 0; z-index: 5;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px;
-    background: #060D1A;
+    background: var(--surface-2);
   }
   .launcher-wordmark { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
   .launcher-mark {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    width: 52px; height: 52px; border-radius: 12px;
+    background: var(--crem-navy);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 30px rgba(59,130,246,0.25);
+    box-shadow: 0 8px 24px rgba(0,22,65,0.2);
   }
-  .launcher-mark svg { width: 24px; height: 24px; }
-  .launcher-title { font-size: 30px; font-weight: 600; letter-spacing: -0.04em; }
-  .launcher-sub   { font-size: 13px; color: var(--text-dim); text-align: center; }
+  .launcher-mark::after { display: none; }
+  .launcher-mark svg { display: none; }
+  .launcher-title { font-family: var(--serif); font-size: 36px; font-weight: 400; letter-spacing: -0.03em; color: var(--ink); }
+  .launcher-sub   { font-size: 13px; color: var(--muted); text-align: center; }
 
   /* ── APP CARDS ── */
   .app-cards-row {
@@ -211,7 +237,7 @@
     display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden;
   }
   .app-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
     opacity: 0; transition: opacity 0.2s;
   }
   .app-card:hover { background: rgba(255,255,255,0.055); border-color: var(--border-mid); transform: translateY(-1px); }
@@ -220,12 +246,12 @@
   .app-card[data-app="prefab"]::before  { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
   .app-card[data-app="field"]::before   { background: linear-gradient(90deg, transparent, var(--yellow), transparent); }
   .app-card[data-app="finance"]::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
-  .app-card[data-app="vdc"]::before     { background: linear-gradient(90deg, transparent, #EF4444, transparent); }
+  .app-card[data-app="vdc"]::before     { background: linear-gradient(90deg, transparent, var(--green), transparent); }
   .app-card[data-app="estimating"]::before { background: linear-gradient(90deg, transparent, var(--orange), transparent); }
 
   .card-icon   { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-  .card-name   { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-bright); }
-  .card-desc   { font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+  .card-name   { font-family: var(--serif); font-size: 15px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); font-style: italic; }
+  .card-desc   { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
   .card-status {
     font-size: 10px; font-family: var(--mono); padding: 2px 7px; border-radius: 20px;
     display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; margin-top: 2px;
@@ -247,19 +273,19 @@
   .load-pane.visible { opacity: 1; }
   .load-spinner {
     width: 28px; height: 28px; border: 2px solid rgba(255,255,255,0.08);
-    border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite;
+    border-top-color: var(--crem-green); border-radius: 50%; animation: spin 0.7s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .load-label { font-size: 12px; color: var(--text-dim); }
 
   /* ── STATUS BAR ── */
   .status-bar {
-    height: 26px; background: var(--navy); border-top: 1px solid var(--border-subtle);
+    height: 26px; background: #fff; border-top: 1px solid var(--line);
     display: flex; align-items: center; padding: 0 14px; gap: 18px; flex-shrink: 0;
   }
-  .sb-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--text-dim); font-family: var(--mono); }
-  .sb-dot  { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.2); }
-  .sb-item.ok .sb-dot { background: var(--green); }
+  .sb-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--muted); font-family: var(--mono); }
+  .sb-dot  { width: 5px; height: 5px; border-radius: 50%; background: rgba(0,22,65,0.15); }
+  .sb-item.ok .sb-dot { background: var(--crem-green); }
 </style>
 </head>
 <body>
@@ -268,18 +294,13 @@
   <!-- ══ AUTH GATE ══ -->
   <div class="auth-gate" id="authGate">
     <div class="auth-box">
-      <div class="auth-mark">
-        <svg viewBox="0 0 13 13" fill="none">
-          <path d="M2 6.5C2 4.015 4.015 2 6.5 2s4.5 2.015 4.5 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M6.5 11C8.985 11 11 8.985 11 6.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="6.5" cy="6.5" r="1.6" fill="white"/>
-        </svg>
-      </div>
+      <div class="auth-mark"></div>
       <div>
         <div class="auth-title">CremFlow</div>
         <div class="auth-sub" style="margin-top:6px;">CREM Electrical · Team access only</div>
       </div>
-      <input class="auth-input" id="authInput" type="password" placeholder="Enter access code" maxlength="32" autocomplete="off" spellcheck="false"/>
+      <input class="auth-input" id="authName" type="text" placeholder="Your name" maxlength="40" autocomplete="name" spellcheck="false" style="letter-spacing:0;text-align:left;padding-left:14px;"/>
+      <input class="auth-input" id="authInput" type="password" placeholder="Access code" maxlength="32" autocomplete="off" spellcheck="false"/>
       <button class="auth-btn" id="authBtn">Enter</button>
       <div class="auth-error" id="authError"></div>
       <div class="auth-attempts" id="authAttempts"></div>
@@ -289,14 +310,8 @@
   <!-- ══ TOP BAR ══ -->
   <div class="top-bar">
     <div class="logo active" id="logoBtn">
-      <div class="logo-mark">
-        <svg viewBox="0 0 13 13" fill="none">
-          <path d="M2 6.5C2 4.015 4.015 2 6.5 2s4.5 2.015 4.5 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M6.5 11C8.985 11 11 8.985 11 6.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="6.5" cy="6.5" r="1.6" fill="white"/>
-        </svg>
-      </div>
-      <span class="logo-name">CremFlow</span>
+      <div class="logo-mark"></div>
+      <span class="logo-name">Crem<em>Flow</em></span>
     </div>
 
     <div class="app-tabs">
@@ -306,17 +321,14 @@
       <div class="app-tab" data-app="field" id="tab-field">
         <div class="tab-dot" style="background:var(--yellow);"></div>FieldFlow
       </div>
-      <div class="app-tab soon" data-app="finance">
+      <div class="app-tab" data-app="finance" id="tab-finance">
         <div class="tab-dot" style="background:var(--purple);"></div>FinanceFlow
-        <span class="tab-badge">soon</span>
       </div>
-      <div class="app-tab soon" data-app="vdc">
+      <div class="app-tab" data-app="vdc" id="tab-vdc">
         <div class="tab-dot" style="background:#EF4444;"></div>VDCFlow
-        <span class="tab-badge">soon</span>
       </div>
-      <div class="app-tab soon" data-app="estimating">
+      <div class="app-tab" data-app="estimating" id="tab-estimating">
         <div class="tab-dot" style="background:var(--orange);"></div>EstimatingFlow
-        <span class="tab-badge">soon</span>
       </div>
     </div>
 
@@ -327,8 +339,8 @@
         <span id="modeLabel">Dark</span>
       </button>
       <div class="user-pill">
-        <div class="user-av">ZS</div>
-        <span class="user-name">Zech S.</span>
+        <div class="user-av" id="userAv">?</div>
+        <span class="user-name" id="userName">Guest</span>
       </div>
     </div>
   </div>
@@ -340,14 +352,7 @@
     <div class="launcher" id="homeLauncher">
       <div style="text-align:center;">
         <div class="launcher-wordmark">
-          <div class="launcher-mark">
-            <svg viewBox="0 0 13 13" fill="none">
-              <path d="M2 6.5C2 4.015 4.015 2 6.5 2s4.5 2.015 4.5 4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-              <path d="M6.5 11C8.985 11 11 8.985 11 6.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
-              <circle cx="6.5" cy="6.5" r="1.6" fill="white"/>
-            </svg>
-          </div>
-          <span class="launcher-title">CremFlow</span>
+          <span class="launcher-title">Crem<em style="font-style:italic;color:var(--crem-green);">Flow</em></span>
         </div>
         <div class="launcher-sub">Your unified operations platform</div>
       </div>
@@ -386,7 +391,7 @@
           <div class="card-status status-building"><div class="sd"></div>In development</div>
         </div>
 
-        <div class="app-card soon" data-app="finance">
+        <div class="app-card" data-app="finance" id="card-finance">
           <div class="card-icon" style="background:rgba(139,92,246,0.12);">
             <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
               <path d="M2 13l4-5 3.5 3 3.5-6 3 4" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
@@ -396,10 +401,10 @@
             <div class="card-name">FinanceFlow</div>
             <div class="card-desc">Job costing, labor budgets &amp; financial reporting</div>
           </div>
-          <div class="card-status status-soon"><div class="sd"></div>Coming soon</div>
+          <div class="card-status status-soon"><div class="sd"></div>TBD</div>
         </div>
 
-        <div class="app-card soon" data-app="vdc">
+        <div class="app-card" data-app="vdc" id="card-vdc">
           <div class="card-icon" style="background:rgba(239,68,68,0.12);">
             <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
               <path d="M2 5l7-3 7 3v8l-7 3-7-3V5z" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" opacity=".8"/>
@@ -410,10 +415,10 @@
             <div class="card-name">VDCFlow</div>
             <div class="card-desc">BIM coordination, clash detection &amp; model management</div>
           </div>
-          <div class="card-status status-soon"><div class="sd"></div>Coming soon</div>
+          <div class="card-status status-soon"><div class="sd"></div>TBD</div>
         </div>
 
-        <div class="app-card soon" data-app="estimating">
+        <div class="app-card" data-app="estimating" id="card-estimating">
           <div class="card-icon" style="background:rgba(249,115,22,0.12);">
             <svg viewBox="0 0 18 18" fill="none" width="18" height="18">
               <path d="M3 14h12M3 10h8M3 6h5" stroke="#F97316" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
@@ -424,7 +429,7 @@
             <div class="card-name">EstimatingFlow</div>
             <div class="card-desc">Takeoffs, bid management &amp; estimate tracking</div>
           </div>
-          <div class="card-status status-soon"><div class="sd"></div>Coming soon</div>
+          <div class="card-status status-soon"><div class="sd"></div>TBD</div>
         </div>
 
       </div>
@@ -444,6 +449,21 @@
     </div>
     <div class="app-pane" id="pane-field">
       <iframe id="iframe-field" title="FieldFlow"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation">
+      </iframe>
+    </div>
+    <div class="app-pane" id="pane-estimating">
+      <iframe id="iframe-estimating" title="EstimatingFlow"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation">
+      </iframe>
+    </div>
+    <div class="app-pane" id="pane-vdc">
+      <iframe id="iframe-vdc" title="VDCFlow"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation">
+      </iframe>
+    </div>
+    <div class="app-pane" id="pane-finance">
+      <iframe id="iframe-finance" title="FinanceFlow"
         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation">
       </iframe>
     </div>
@@ -473,13 +493,16 @@
   var PASSCODE         = 'MERC2026';
   var MAX_ATTEMPTS     = 5;
   var LOCKOUT_MINUTES  = 15;
-  var SESSION_KEY      = 'cf_auth';
+  var SESSION_KEY      = 'cf_auth_v2';
   var SESSION_HOURS    = 8;
   // ────────────────────────────────────────────────────────────
 
   var apps = {
-    prefab: { name: 'PrefabFlow', color: '#06B6D4', url: 'https://prefabflow-production.up.railway.app/' },
-    field:  { name: 'FieldFlow',  color: '#EAB308', url: 'https://fieldflow.up.railway.app/' }
+    prefab:     { name: 'PrefabFlow',     color: '#06B6D4', url: 'https://prefabflow-production.up.railway.app/' },
+    field:      { name: 'FieldFlow',      color: '#EAB308', url: 'https://fieldflow.up.railway.app/' },
+    estimating: { name: 'EstimatingFlow', color: '#F97316', url: 'https://estimatingflow.up.railway.app/' },
+    vdc:        { name: 'VDCFlow',        color: '#EF4444', url: 'https://vdcflow.up.railway.app/' },
+    finance:    { name: 'FinanceFlow',    color: '#8B5CF6', url: 'https://financeflow-crem.up.railway.app/' }
   };
 
   var currentApp   = null;
@@ -497,8 +520,8 @@
     } catch (e) { return null; }
   }
 
-  function setSession() {
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() })); } catch (e) {}
+  function setSession(name) {
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now(), name: name || 'User' })); } catch (e) {}
   }
 
   function getLockout() {
@@ -529,13 +552,19 @@
   function initAuth() {
     var gate = document.getElementById('authGate');
 
-    // Already authenticated this session
-    if (getSession()) { gate.style.display = 'none'; return; }
+    // Already authenticated — restore name and hide gate
+    var sess = getSession();
+    if (sess) {
+      gate.classList.add('unlocked');
+      setUserDisplay(sess.name || 'User');
+      return;
+    }
 
-    var input    = document.getElementById('authInput');
-    var btn      = document.getElementById('authBtn');
-    var errorEl  = document.getElementById('authError');
-    var attempEl = document.getElementById('authAttempts');
+    var nameInput = document.getElementById('authName');
+    var input     = document.getElementById('authInput');
+    var btn       = document.getElementById('authBtn');
+    var errorEl   = document.getElementById('authError');
+    var attempEl  = document.getElementById('authAttempts');
 
     function checkLockout() {
       var l = getLockout();
@@ -557,15 +586,20 @@
 
     function attempt() {
       if (checkLockout()) return;
-      var val = input.value.trim().toUpperCase();
-      if (!val) return;
+      var name = nameInput.value.trim();
+      var val  = input.value.trim().toUpperCase();
+      if (!name) { nameInput.focus(); errorEl.textContent = 'Please enter your name.'; return; }
+      if (!val)  { input.focus(); return; }
 
       if (val === PASSCODE.toUpperCase()) {
-        setSession();
+        setSession(name);
         sessionStorage.removeItem('cf_attempts');
         sessionStorage.removeItem('cf_lockout');
-        gate.style.display = 'none';
+        setUserDisplay(name);
+        gate.classList.add('unlocked');
         input.value = '';
+        nameInput.value = '';
+        errorEl.textContent = '';
       } else {
         var attempts = recordFailedAttempt();
         input.value = '';
@@ -580,8 +614,19 @@
     }
 
     btn.addEventListener('click', attempt);
+    nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { input.focus(); } });
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt(); });
-    input.focus();
+    nameInput.focus();
+  }
+
+  function setUserDisplay(name) {
+    var parts    = name.trim().split(' ');
+    var first    = parts[0] || '';
+    var last     = parts[parts.length - 1] || '';
+    var initials = (first[0] || '') + (parts.length > 1 ? last[0] || '' : '');
+    var display  = first + (parts.length > 1 ? ' ' + last[0] + '.' : '');
+    document.getElementById('userAv').textContent   = initials.toUpperCase();
+    document.getElementById('userName').textContent = display;
   }
 
   // ── CLOCK ──
@@ -633,7 +678,7 @@
       return;
     }
 
-    // Add timestamp so browser never serves cached version
+    // Always load fresh — timestamp prevents browser caching old version
     var freshUrl = app.url + (app.url.includes('?') ? '&' : '?') + '_t=' + Date.now();
     loadPane.classList.add('visible');
     document.getElementById('loadLabel').textContent = 'Loading ' + app.name + '...';
@@ -682,22 +727,28 @@
 
     document.getElementById('logoBtn').addEventListener('click', goHome);
     document.getElementById('tab-prefab').addEventListener('click', function () { switchApp('prefab'); });
-    document.getElementById('tab-field').addEventListener('click',  function () { switchApp('field'); });
+    document.getElementById('tab-field').addEventListener('click',       function () { switchApp('field'); });
+    document.getElementById('tab-estimating').addEventListener('click',  function () { switchApp('estimating'); });
+    document.getElementById('tab-vdc').addEventListener('click',         function () { switchApp('vdc'); });
+    document.getElementById('tab-finance').addEventListener('click',     function () { switchApp('finance'); });
+    document.getElementById('card-estimating').addEventListener('click', function () { switchApp('estimating'); });
+    document.getElementById('card-vdc').addEventListener('click',        function () { switchApp('vdc'); });
+    document.getElementById('card-finance').addEventListener('click',    function () { switchApp('finance'); });
     document.getElementById('card-prefab').addEventListener('click', function () { switchApp('prefab'); });
     document.getElementById('card-field').addEventListener('click',  function () { switchApp('field'); });
 
     // Dark / Light mode — persist preference
-    var isLight = localStorage.getItem('cf_theme') === 'light';
+    var isDark = localStorage.getItem('cf_theme') === 'dark';
     function applyTheme() {
-      document.body.classList.toggle('light', isLight);
-      document.getElementById('iconDark').style.display  = isLight ? 'none'   : 'inline';
-      document.getElementById('iconLight').style.display = isLight ? 'inline' : 'none';
-      document.getElementById('modeLabel').textContent   = isLight ? 'Light'  : 'Dark';
+      document.body.classList.toggle('dark', isDark);
+      document.getElementById('iconDark').style.display  = isDark ? 'none'   : 'inline';
+      document.getElementById('iconLight').style.display = isDark ? 'inline' : 'none';
+      document.getElementById('modeLabel').textContent   = isDark ? 'Light'  : 'Dark';
     }
     applyTheme();
     document.getElementById('btnDarkMode').addEventListener('click', function () {
-      isLight = !isLight;
-      try { localStorage.setItem('cf_theme', isLight ? 'light' : 'dark'); } catch (e) {}
+      isDark = !isDark;
+      try { localStorage.setItem('cf_theme', isDark ? 'dark' : 'light'); } catch (e) {}
       applyTheme();
     });
 
